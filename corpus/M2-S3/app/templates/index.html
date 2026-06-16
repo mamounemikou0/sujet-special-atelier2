@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boutique</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍</text></svg>">
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="nav-logo" onclick="navigate('shop')" style="cursor:pointer">✦ Boutique</span>
+  <div class="nav-links" id="nav-links"></div>
+  <div class="nav-right" id="nav-right"></div>
+</nav>
+
+<!-- ── TOAST ── -->
+<div id="toast-container"></div>
+
+<!-- ── CART SIDEBAR ── -->
+<div id="cart-overlay" onclick="closeCart()"></div>
+<aside id="cart-sidebar">
+  <div class="cart-header">
+    <h2>Mon Panier</h2>
+    <button class="close-btn" onclick="closeCart()">×</button>
+  </div>
+  <div id="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-total" id="cart-footer-total"></div>
+    <button
+      id="cart-checkout-btn"
+      class="btn-primary"
+      style="width:100%;display:none"
+      onclick="closeCart();navigate('checkout')"
+    >Commander →</button>
+  </div>
+</aside>
+
+<!-- ══ PAGES ══ -->
+
+<!-- SHOP -->
+<div id="page-shop" class="page">
+  <div class="hero">
+    <h1>Trouvez ce que<br>vous <span>aimez.</span></h1>
+    <p>Des produits soigneusement sélectionnés, livrés chez vous.</p>
+  </div>
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input id="search-input" type="text" placeholder="Rechercher un produit…" oninput="onSearchInput()">
+    </div>
+    <select id="category-filter" onchange="loadProducts()">
+      <option value="">Toutes catégories</option>
+    </select>
+  </div>
+  <div class="products-grid" id="products-grid"></div>
+</div>
+
+<!-- LOGIN -->
+<div id="page-login" class="page">
+  <div class="form-page">
+    <h2>Connexion</h2>
+    <p class="subtitle">Accédez à votre compte</p>
+    <form id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input id="login-email" type="email" placeholder="vous@exemple.com" required>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input id="login-password" type="password" placeholder="••••••••" required>
+      </div>
+      <p class="form-error" id="login-error"></p>
+      <button class="btn-primary" style="width:100%;margin-top:0.5rem" type="submit">Se connecter</button>
+    </form>
+    <p class="form-link">Pas encore de compte ? <a href="#" onclick="navigate('register');return false">S'inscrire</a></p>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="page-register" class="page">
+  <div class="form-page">
+    <h2>Créer un compte</h2>
+    <p class="subtitle">Rejoignez-nous en quelques secondes</p>
+    <form id="register-form">
+      <div class="form-group">
+        <label>Nom complet</label>
+        <input id="reg-name" type="text" placeholder="Jean Tremblay" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input id="reg-email" type="email" placeholder="vous@exemple.com" required>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input id="reg-password" type="password" placeholder="••••••••" minlength="6" required>
+      </div>
+      <p class="form-error" id="register-error"></p>
+      <button class="btn-primary" style="width:100%;margin-top:0.5rem" type="submit">Créer le compte</button>
+    </form>
+    <p class="form-link">Déjà un compte ? <a href="#" onclick="navigate('login');return false">Se connecter</a></p>
+  </div>
+</div>
+
+<!-- CHECKOUT -->
+<div id="page-checkout" class="page">
+  <div class="checkout-page">
+    <h2>Finaliser la commande</h2>
+    <form id="checkout-form">
+      <!-- Récapitulatif -->
+      <div class="checkout-section">
+        <h3><span class="section-num">1</span> Récapitulatif</h3>
+        <div id="checkout-summary"></div>
+      </div>
+
+      <!-- Adresse -->
+      <div class="checkout-section">
+        <h3><span class="section-num">2</span> Adresse de livraison</h3>
+        <div class="form-group">
+          <label>Adresse complète</label>
+          <textarea id="checkout-address" placeholder="123 Rue Principale, Montréal QC H2Y 1C6, Canada" rows="3" required></textarea>
+        </div>
+      </div>
+
+      <!-- Paiement -->
+      <div class="checkout-section">
+        <h3><span class="section-num">3</span> Paiement <span style="color:var(--muted);font-size:0.8rem;font-weight:400">(simulation)</span></h3>
+        <div class="form-group">
+          <label>Numéro de carte (16 chiffres)</label>
+          <input id="card-number" type="text" placeholder="1234 5678 9012 3456" maxlength="19" required autocomplete="off">
+        </div>
+        <div class="card-row">
+          <div class="form-group">
+            <label>Date d'expiration</label>
+            <input type="text" placeholder="MM/AA" required>
+          </div>
+          <div class="form-group">
+            <label>CVV</label>
+            <input type="text" placeholder="•••" maxlength="4" required>
+          </div>
+        </div>
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem">⚠ Aucun paiement réel — simulation uniquement</p>
+      </div>
+
+      <p class="form-error" id="checkout-error"></p>
+      <button type="submit" class="btn-primary" style="width:100%;padding:0.9rem;font-size:1rem">
+        Confirmer la commande →
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ORDER SUCCESS -->
+<div id="page-order-success" class="page">
+  <div class="success-page">
+    <div class="checkmark">✓</div>
+    <h2>Commande confirmée !</h2>
+    <p>Votre commande <strong id="success-order-id"></strong> a été enregistrée avec succès. Vous recevrez une confirmation bientôt.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn-secondary" onclick="navigate('orders')">Voir mes commandes</button>
+      <button class="btn-primary" onclick="navigate('shop')">Continuer mes achats</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDERS -->
+<div id="page-orders" class="page">
+  <div class="orders-page">
+    <h2>Mes Commandes</h2>
+    <div id="orders-list"></div>
+  </div>
+</div>
+
+<!-- ACCOUNT -->
+<div id="page-account" class="page">
+  <div class="account-page">
+    <h2>Mon Compte</h2>
+    <div class="account-section">
+      <h3>Informations personnelles</h3>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem" id="acc-email-display"></p>
+      <form id="account-form">
+        <div class="form-group">
+          <label>Nom complet</label>
+          <input id="acc-name" type="text" required>
+        </div>
+        <div class="form-group">
+          <label>Adresse</label>
+          <input id="acc-address" type="text" placeholder="123 Rue Principale">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div class="form-group">
+            <label>Ville</label>
+            <input id="acc-city" type="text" placeholder="Montréal">
+          </div>
+          <div class="form-group">
+            <label>Code postal</label>
+            <input id="acc-postal" type="text" placeholder="H2Y 1C6">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Pays</label>
+          <input id="acc-country" type="text" value="Canada">
+        </div>
+        <button class="btn-primary" type="submit">Sauvegarder</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <div class="admin-page">
+    <h2>Administration</h2>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="products" onclick="showAdminTab('products')">Produits</button>
+      <button class="admin-tab" data-tab="orders" onclick="showAdminTab('orders')">Commandes</button>
+    </div>
+    <div id="admin-content"></div>
+  </div>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Product detail modal -->
+<div class="modal-overlay" id="product-modal" onclick="if(event.target===this)closeModal('product-modal')">
+  <div class="modal">
+    <div id="product-modal-content"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('product-modal')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin product form modal -->
+<div class="modal-overlay" id="product-modal-form" onclick="if(event.target===this)closeModal('product-modal-form')">
+  <div class="modal">
+    <h3 id="product-modal-title">Ajouter un produit</h3>
+    <form id="product-form">
+      <input type="hidden" id="pm-id">
+      <div class="form-group">
+        <label>Nom</label>
+        <input id="pm-name" type="text" required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="pm-description" rows="3"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+        <div class="form-group">
+          <label>Prix (CAD)</label>
+          <input id="pm-price" type="number" step="0.01" min="0" required>
+        </div>
+        <div class="form-group">
+          <label>Stock</label>
+          <input id="pm-stock" type="number" min="0" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>URL de l'image</label>
+        <input id="pm-image" type="url" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select id="pm-category"></select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:0.5rem">
+        <input id="pm-active" type="checkbox" style="width:auto" checked>
+        <label for="pm-active" style="margin-bottom:0">Produit actif</label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeModal('product-modal-form')">Annuler</button>
+        <button type="submit" class="btn-primary">Sauvegarder</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

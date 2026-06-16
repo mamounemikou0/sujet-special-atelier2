@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Accueil - Réservations</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="active">🏠 Accueil</a>
+            <% if (user.role === 'manager') { %> <a href="/manager">📊 Gestion</a> <% } %>
+            <span class="user-info">Profil : <strong><%= user.email %></strong></span>
+            <a href="/auth/logout" class="btn btn-small logout-btn">Déconnexion</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <% if (notifications.length > 0) { %>
+            <div class="notifications-section">
+                <h3>🔔 Rappels de réunions</h3>
+                <ul>
+                    <% notifications.forEach(n => { %> <li><%= n.message %></li> <% }) %>
+                </ul>
+                <form action="/notifications/read" method="POST">
+                    <button type="submit" class="btn btn-small btn-secondary">Effacer les alertes</button>
+                </form>
+            </div>
+        <% } %>
+
+        <h2>Salles de réunion disponibles</h2>
+        <div class="rooms-grid">
+            <% rooms.forEach(room => { %>
+                <div class="room-card">
+                    <img src="<%= room.photo_url %>" alt="Photo salle" class="room-img">
+                    <div class="room-details">
+                        <h3><%= room.name %></h3>
+                        <p>👤 Capacité : <%= room.capacity %> personnes</p>
+                        <p>🛠️ Équipements : <%= room.equipment %></p>
+                        <a href="/rooms/<%= room.id %>" class="btn">Réserver / Calendrier</a>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </main>
+</body>
+</html>

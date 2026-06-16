@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard PME{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<header>
+    <div class="logo">PME Dashboard</div>
+    {% if user %}
+    <nav>
+        <a href="/">Accueil</a>
+        {% if user.role == 'employee' or user.role == 'manager' or user.role == 'admin' %}
+            <a href="/employee/profile">Mon profil</a>
+        {% endif %}
+        {% if user.role == 'manager' or user.role == 'admin' %}
+            <a href="/manager/leaves">Demandes de congés équipe</a>
+        {% endif %}
+        {% if user.role == 'admin' %}
+            <a href="/admin/users">Utilisateurs</a>
+            <a href="/admin/stats">Statistiques</a>
+        {% endif %}
+        <a href="/logout">Déconnexion</a>
+    </nav>
+    {% endif %}
+</header>
+<main>
+    {% block content %}{% endblock %}
+</main>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

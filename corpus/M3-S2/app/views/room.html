@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title><%= room.name %> - Planning</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">🏠 Accueil</a>
+            <% if (user.role === 'manager') { %> <a href="/manager">📊 Gestion</a> <% } %>
+            <span class="user-info">Profil : <strong><%= user.email %></strong></span>
+            <a href="/auth/logout" class="btn btn-small logout-btn">Déconnexion</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2>Planning : <%= room.name %></h2>
+        <p><%= room.equipment %> (Max : <%= room.capacity %> personnes)</p>
+
+        <div style="background: white; padding: 1rem; border: 1px solid var(--border); margin-bottom: 1rem;">
+            <form action="/rooms/<%= room.id %>" method="GET">
+                <label style="font-weight: 600;">Changer de date : </label>
+                <input type="date" name="date" value="<%= date %>" onchange="this.form.submit()">
+            </form>
+        </div>
+
+        <h3>Créneaux horaires du : <%= date %></h3>
+        <table class="calendar-table">
+            <thead>
+                <tr>
+                    <th>Horaire</th>
+                    <th>Statut</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% hours.forEach(slot => { %>
+                    <tr>
+                        <td><strong><%= slot.hour %>h00 - <%= slot.hour + 1 %>h00</strong></td>
+                        <td>
+                            <% if (slot.booking) { %>
+                                <span class="badge booked">Occupée par <%= slot.booking.email %></span>
+                            <% } else { %>
+                                <span class="badge free">Libre</span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if (!slot.booking) { %>
+                                <form action="/bookings/create" method="POST">
+                                    <input type="hidden" name="room_id" value="<%= room.id %>">
+                                    <input type="hidden" name="date" value="<%= date %>">
+                                    <input type="hidden" name="start_hour" value="<%= slot.hour %>">
+                                    <button type="submit" class="btn btn-small btn-success">Réserver</button>
+                                </form>
+                            <% } else if (slot.booking.user_id === user.id || user.role === 'manager') { %>
+                                <div style="display:flex; gap:0.5rem;">
+                                    <a href="/bookings/edit/<%= slot.booking.id %>" class="btn btn-small btn-warning">Modifier</a>
+                                    <form action="/bookings/delete/<%= slot.booking.id %>" method="POST">
+                                        <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Annuler cette réservation ?')">Annuler</button>
+                                    </form>
+                                </div>
+                            <% } else { %>
+                                <span style="color:#94a3b8; font-size:0.9rem;">Verrouillé</span>
+                            <% } %>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>

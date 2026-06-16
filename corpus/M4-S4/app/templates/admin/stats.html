@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Statistiques</h2>
+<div class="stats">
+    <div class="card">
+        <h3>Employés par département</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Département</th>
+                    <th>Nombre d'employés</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dept, count in dept_counts.items() %}
+                <tr>
+                    <td>{{ dept }}</td>
+                    <td>{{ count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Total des salaires</h3>
+        <p>{{ total_salary }} €</p>
+    </div>
+
+    <div class="card">
+        <h3>Salaires par département</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Département</th>
+                    <th>Total des salaires</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dept, total in dept_salaries.items() %}
+                <tr>
+                    <td>{{ dept }}</td>
+                    <td>{{ total }} €</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Demandes de congés</h3>
+        <p><strong>En attente :</strong> {{ pending_leaves }}</p>
+        <p><strong>Approuvées :</strong> {{ approved_leaves }}</p>
+        <p><strong>Refusées :</strong> {{ rejected_leaves }}</p>
+    </div>
+</div>
+{% endblock %}

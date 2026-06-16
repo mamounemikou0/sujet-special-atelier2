@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Mes Congés{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Mes Congés</h1>
+    <button class="btn btn-primary" onclick="toggleModal('leave-modal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouvelle demande
+    </button>
+</div>
+
+{% if request.query_params.get('success') == '1' %}
+<div class="alert alert-success">Demande de congé envoyée avec succès.</div>
+{% endif %}
+{% if request.query_params.get('error') == 'dates' %}
+<div class="alert alert-error">Dates invalides. Vérifiez vos dates.</div>
+{% endif %}
+
+<!-- Stats cards -->
+<div class="stats-row">
+    <div class="stat-card">
+        <span class="stat-number">{{ leaves | selectattr('status.value', 'equalto', 'pending') | list | length }}</span>
+        <span class="stat-label">En attente</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ leaves | selectattr('status.value', 'equalto', 'approved') | list | length }}</span>
+        <span class="stat-label">Approuvées</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ leaves | selectattr('status.value', 'equalto', 'refused') | list | length }}</span>
+        <span class="stat-label">Refusées</span>
+    </div>
+</div>
+
+<div class="card">
+    {% if leaves %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Période</th>
+                <th>Durée</th>
+                <th>Motif</th>
+                <th>Statut</th>
+                <th>Commentaire</th>
+                <th>Demandé le</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for leave in leaves %}
+            <tr>
+                <td>{{ leave.start_date.strftime('%d/%m/%Y') }} → {{ leave.end_date.strftime('%d/%m/%Y') }}</td>
+                <td>{{ (leave.end_date - leave.start_date).days + 1 }} j</td>
+                <td>{{ leave.reason or '—' }}</td>
+                <td><span class="status-badge status-{{ leave.status.value }}">{{ leave.status.value | capitalize }}</span></td>
+                <td>{{ leave.manager_comment or '—' }}</td>
+                <td>{{ leave.created_at.strftime('%d/%m/%Y') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <p>Aucune demande de congé pour l'instant.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal demande de congé -->
+<div class="modal-overlay" id="leave-modal" style="display:none">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Nouvelle demande de congé</h3>
+            <button onclick="toggleModal('leave-modal')" class="modal-close">&times;</button>
+        </div>
+        <form method="post" action="/employee/leaves/request">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Date de début</label>
+                    <input type="date" name="start_date" min="{{ today }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Date de fin</label>
+                    <input type="date" name="end_date" min="{{ today }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Motif (optionnel)</label>
+                    <textarea name="reason" rows="3" placeholder="Ex : Vacances, rendez-vous médical..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="toggleModal('leave-modal')">Annuler</button>
+                <button type="submit" class="btn btn-primary">Envoyer la demande</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

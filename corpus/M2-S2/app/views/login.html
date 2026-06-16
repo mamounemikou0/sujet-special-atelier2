@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion – RoomBook</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">Room<span>Book</span></div>
+    <p class="auth-subtitle">Gérez vos salles de réunion en toute simplicité</p>
+
+    <div id="errorMsg" class="alert alert-danger hidden">
+      ✗ Email ou mot de passe incorrect.
+    </div>
+
+    <form method="POST" action="/login">
+      <input type="hidden" name="redirect" id="redirectField" value="/">
+      <div class="form-group">
+        <label class="form-label">Adresse email</label>
+        <input type="email" name="email" class="form-control" placeholder="vous@exemple.com" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.7rem;">
+        Se connecter
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Pas encore de compte ? <a href="/register">Créer un compte</a>
+    </div>
+    <div class="auth-footer" style="margin-top:.5rem;font-size:.78rem;color:#9ca3af">
+      Démo gestionnaire : admin@example.com / admin1234
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    if (params.get('error')) {
+      document.getElementById('errorMsg').classList.remove('hidden');
+    }
+    if (params.get('redirect')) {
+      document.getElementById('redirectField').value = params.get('redirect');
+    }
+  </script>
+</body>
+</html>

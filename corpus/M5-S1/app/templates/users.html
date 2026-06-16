@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des utilisateurs{% endblock %}
+
+{% block content %}
+<div class="users-container">
+    <h1>Liste des utilisateurs</h1>
+    
+    <div class="users-grid">
+        <div class="users-header">
+            <span>ID</span>
+            <span>Nom d'utilisateur</span>
+            <span>Email</span>
+            <span>Rôle</span>
+            <span>Actions</span>
+        </div>
+        
+        {% for u in users %}
+        <div class="user-row">
+            <span>{{ u.id }}</span>
+            <span>{{ u.username }}</span>
+            <span>{{ u.email }}</span>
+            <span>
+                {% if u.is_admin %}
+                <span class="badge badge-admin">Admin</span>
+                {% else %}
+                <span class="badge badge-user">Utilisateur</span>
+                {% endif %}
+            </span>
+            <span>
+                {% if user.is_admin and u.id != user.id %}
+                <button onclick="deleteUser('{{ u.id }}')" class="btn btn-sm btn-danger">Supprimer</button>
+                {% endif %}
+                {% if u.id == user.id %}
+                <span class="text-muted">Vous</span>
+                {% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

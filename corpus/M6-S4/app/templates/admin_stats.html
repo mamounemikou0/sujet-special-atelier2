@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Statistiques{% endblock %}
+{% block content %}
+<h2>Statistiques</h2>
+
+<h3>Employés par département</h3>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Département</th>
+        <th>Nombre d'employés</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for dept, count in dept_counts %}
+        <tr>
+            <td>{{ dept or 'Non défini' }}</td>
+            <td>{{ count }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="2">Aucune donnée.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h3>Total des salaires</h3>
+<p><strong>{{ "%.2f"|format(total_salaries) }} €</strong></p>
+
+<h3>Congés en cours</h3>
+<p><strong>{{ ongoing_leaves }}</strong> congé(s) approuvé(s) en cours.</p>
+{% endblock %}

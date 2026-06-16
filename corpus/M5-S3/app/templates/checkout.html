@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commande - E-Boutique</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">E-Boutique</a>
+            <div class="nav-links">
+                <span>Bienvenue, {{ user.username }}</span>
+                <a href="/cart">Panier ({{ cart_count }})</a>
+                <a href="/logout">Déconnexion</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Passer la commande</h1>
+        
+        <div class="checkout-container">
+            <div class="order-summary">
+                <h2>Récapitulatif</h2>
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Quantité</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ "%.2f"|format(item.product.price * item.quantity) }} €</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2"><strong>Total</strong></td>
+                            <td><strong>{{ "%.2f"|format(total) }} €</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                <div class="delivery-address">
+                    <h3>Adresse de livraison</h3>
+                    <p>{{ user.address }}</p>
+                </div>
+            </div>
+            
+            <div class="payment-form">
+                <h2>Paiement (Simulation)</h2>
+                {% if error %}
+                    <div class="error">{{ error }}</div>
+                {% endif %}
+                <form method="POST">
+                    <div class="form-group">
+                        <label>Numéro de carte bancaire (16 chiffres)</label>
+                        <input type="text" name="card_number" maxlength="16" placeholder="1234567890123456" required pattern="\d{16}">
+                        <small>Exemple: 1234567890123456 (paiement simulé)</small>
+                    </div>
+                    <button type="submit" class="btn-primary">Confirmer la commande</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

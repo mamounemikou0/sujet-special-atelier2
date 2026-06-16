@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Boutique - Accueil</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">E-Boutique</a>
+            <div class="nav-links">
+                {% if user %}
+                    <span>Bienvenue, {{ user.username }}</span>
+                    {% if user.is_admin %}
+                        <a href="/admin">Admin</a>
+                    {% endif %}
+                    <a href="/orders">Mes commandes</a>
+                    <a href="/cart">Panier ({{ cart_count }})</a>
+                    <a href="/logout">Déconnexion</a>
+                {% else %}
+                    <a href="/login">Connexion</a>
+                    <a href="/register">Inscription</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Nos Produits</h1>
+        
+        <form method="GET" class="search-form">
+            <input type="text" name="search" placeholder="Rechercher un produit..." value="{{ search or '' }}">
+            <select name="category">
+                <option value="all">Toutes les catégories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Filtrer</button>
+        </form>
+
+        <div class="products-grid">
+            {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+                    <h3>{{ product.name }}</h3>
+                    <p class="product-description">{{ product.description }}</p>
+                    <p class="product-price">{{ "%.2f"|format(product.price) }} €</p>
+                    <p class="product-stock">Stock: {{ product.stock }}</p>
+                    {% if product.stock > 0 %}
+                        <form action="/cart/add" method="POST">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                            <button type="submit">Ajouter au panier</button>
+                        </form>
+                    {% else %}
+                        <button disabled>Rupture de stock</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

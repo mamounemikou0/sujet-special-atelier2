@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Mon profil{% endblock %}
+
+{% block content %}
+<h1>Mon profil</h1>
+
+{% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+{% endif %}
+{% if success %}
+    <div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+<form method="post">
+    <label>Email
+        <input type="email" name="email" value="{{ user.email }}" required>
+    </label>
+
+    <label>Nom d'utilisateur
+        <input type="text" name="username" value="{{ user.username }}" required>
+    </label>
+
+    <label>Mot de passe actuel
+        <input type="password" name="current_password" required>
+    </label>
+
+    <label>Nouveau mot de passe (optionnel)
+        <input type="password" name="new_password">
+    </label>
+
+    <button type="submit">Mettre à jour</button>
+</form>
+
+<hr>
+
+<form method="post" action="/profile/delete" onsubmit="return confirmDeleteSelf();">
+    <button type="submit" class="danger">Supprimer mon compte</button>
+</form>
+{% endblock %}

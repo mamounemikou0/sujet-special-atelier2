@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Inscription — UserHub{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-decoration">
+    <div class="deco-circle c1"></div>
+    <div class="deco-circle c2"></div>
+    <div class="deco-circle c3"></div>
+    <div class="brand-hero">
+      <span class="brand-icon">⬡</span>
+      <h1>UserHub</h1>
+      <p>Rejoignez la communauté<br>dès aujourd'hui.</p>
+    </div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Inscription</h2>
+        <p>Créer un nouveau compte</p>
+      </div>
+      {% if error %}
+      <div class="alert alert-error">{{ error }}</div>
+      {% endif %}
+      <form method="post" action="/register" class="auth-form">
+        <div class="field-group">
+          <label for="username">Nom d'utilisateur</label>
+          <input type="text" id="username" name="username" placeholder="votre_pseudo" required autofocus />
+        </div>
+        <div class="field-group">
+          <label for="email">Adresse email</label>
+          <input type="email" id="email" name="email" placeholder="vous@exemple.com" required />
+        </div>
+        <div class="field-group">
+          <label for="password">Mot de passe <span class="hint">(min. 6 caractères)</span></label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary">Créer mon compte →</button>
+      </form>
+      <p class="auth-switch">Déjà inscrit ? <a href="/login">Se connecter</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

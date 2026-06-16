@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panier - E-Boutique</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">E-Boutique</a>
+            <div class="nav-links">
+                <span>Bienvenue, {{ user.username }}</span>
+                <a href="/orders">Mes commandes</a>
+                <a href="/cart">Panier ({{ cart_count }})</a>
+                <a href="/logout">Déconnexion</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Mon Panier</h1>
+        
+        {% if cart_items %}
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Prix unitaire</th>
+                        <th>Quantité</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ "%.2f"|format(item.product.price) }} €</td>
+                            <td>
+                                <form action="/cart/update" method="POST" style="display: inline;">
+                                    <input type="hidden" name="cart_id" value="{{ item.id }}">
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}" style="width: 60px;">
+                                    <button type="submit">Mettre à jour</button>
+                                </form>
+                            </td>
+                            <td>{{ "%.2f"|format(item.product.price * item.quantity) }} €</td>
+                            <td>
+                                <form action="/cart/update" method="POST">
+                                    <input type="hidden" name="cart_id" value="{{ item.id }}">
+                                    <input type="hidden" name="quantity" value="0">
+                                    <button type="submit" class="btn-danger">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3"><strong>Total</strong></td>
+                        <td colspan="2"><strong>{{ "%.2f"|format(total) }} €</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <div class="cart-actions">
+                <a href="/" class="btn">Continuer mes achats</a>
+                <a href="/checkout" class="btn btn-primary">Passer la commande</a>
+            </div>
+        {% else %}
+            <p>Votre panier est vide.</p>
+            <a href="/" class="btn">Voir les produits</a>
+        {% endif %}
+    </div>
+</body>
+</html>

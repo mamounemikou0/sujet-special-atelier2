@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <section class="users-container">
+        <h2>Panneau d'administration</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom d'utilisateur</th>
+                    <th>Email</th>
+                    <th>Admin</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ "Oui" if user.is_admin else "Non" }}</td>
+                        <td>
+                            {% if user.id != current_user.id %}
+                                <form action="/admin/delete_user/{{ user.id }}" method="post">
+                                    <button type="submit" class="delete-button">Supprimer</button>
+                                </form>
+                            {% else %}
+                                <p>Impossible de se supprimer soi-même</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

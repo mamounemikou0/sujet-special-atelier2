@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Passage de Commande{% endblock %}
+{% block content %}
+<h2>Finaliser votre commande</h2>
+
+{% if request.query_params.get('error') == 'invalid_card' %}
+    <p style="color: var(--danger); font-weight: bold; background: #fee2e2; padding: 1rem; border-radius: 4px;">Le numéro de carte bancaire doit contenir strictement 16 chiffres.</p>
+{% endif %}
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+    <div>
+        <h3>Récapitulatif de la commande</h3>
+        <table style="margin-top: 0;">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Qté</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>x{{ item.quantity }}</td>
+                        <td>{{ "%.2f"|format(item.total) }} €</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h4 style="font-size: 1.3rem; text-align: right; margin-top: 1rem;">Total final : {{ "%.2f"|format(total) }} €</h4>
+    </div>
+
+    <div>
+        <h3>Expédition & Règlement</h3>
+        <form action="/cart/checkout" method="post" id="checkoutForm" style="max-width: 100%;">
+            <div class="form-group">
+                <label>Adresse de livraison complète</label>
+                <textarea name="shipping_address" required rows="3">{{ request.state.user.shipping_address }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Numéro de carte bancaire fictif (16 chiffres)</label>
+                <input type="text" name="card_number" id="cardNumber" placeholder="4242 4242 4242 4242" required maxlength="19">
+                <small style="color: #64748b;">Aucun prélèvement réel ne sera initié.</small>
+            </div>
+            <button type="submit" class="btn" style="font-size: 1.1rem; padding: 0.75rem;">Valider et payer la commande</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const cardInput = document.getElementById('cardNumber');
+    cardInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let formatted = '';
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 4 === 0) formatted += ' ';
+            formatted += value[i];
+        }
+        e.target.value = formatted;
+    });
+
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        const rawVal = cardInput.value.replace(/\s+/g, '');
+        if(rawVal.length !== 16) {
+            alert('Votre numéro de carte de simulation doit comporter précisément 16 chiffres.');
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

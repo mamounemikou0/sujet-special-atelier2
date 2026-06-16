@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Créer un utilisateur</h2>
+<form action="/admin/create-user" method="post">
+    <div class="form-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <label for="full_name">Nom complet :</label>
+        <input type="text" id="full_name" name="full_name" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <div class="form-group">
+        <label for="role">Rôle :</label>
+        <select id="role" name="role" required>
+            {% for role in roles %}
+                <option value="{{ role }}">{{ role }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="department">Département :</label>
+        <select id="department" name="department" required>
+            {% for dept in departments %}
+                <option value="{{ dept }}">{{ dept }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="salary">Salaire :</label>
+        <input type="number" id="salary" name="salary" step="0.01" required>
+    </div>
+    <div class="form-group">
+        <label for="manager_id">Manager :</label>
+        <select id="manager_id" name="manager_id">
+            <option value="">Aucun</option>
+            {% for manager in managers %}
+                <option value="{{ manager.id }}">{{ manager.full_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit">Créer</button>
+</form>
+{% endblock %}

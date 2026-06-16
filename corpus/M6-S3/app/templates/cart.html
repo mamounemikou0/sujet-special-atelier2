@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Panier{% endblock %}
+{% block content %}
+<h1>Panier</h1>
+{% if cart_items %}
+<table class="cart-table">
+    <thead>
+    <tr>
+        <th>Produit</th>
+        <th>Prix</th>
+        <th>Quantité</th>
+        <th>Total</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in cart_items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ "%.2f"|format(item.product.price) }} €</td>
+            <td>
+                <form method="post" action="/cart/update/{{ item.product.id }}">
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="0">
+                    <button type="submit">Mettre à jour</button>
+                </form>
+            </td>
+            <td>{{ "%.2f"|format(item.line_total) }} €</td>
+            <td>
+                <form method="post" action="/cart/remove/{{ item.product.id }}">
+                    <button type="submit">Supprimer</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<p class="cart-total">Total : {{ "%.2f"|format(total) }} €</p>
+{% if user %}
+    <a href="/checkout" class="btn-primary">Passer la commande</a>
+{% else %}
+    <p>Vous devez être connecté pour commander. <a href="/login">Connexion</a></p>
+{% endif %}
+{% else %}
+<p>Votre panier est vide.</p>
+{% endif %}
+{% endblock %}

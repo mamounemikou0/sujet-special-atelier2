@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Espace Admin{% endblock %}
+{% block content %}
+<h2 style="color: var(--danger);">Console d'administration ⚙️</h2>
+
+<div style="margin-bottom: 3rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3>Gestion du Stock Produits</h3>
+        <a href="/admin/product/add" class="btn">➕ Ajouter un produit</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Prix</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prod in products %}
+                <tr>
+                    <td>{{ prod.id }}</td>
+                    <td><img src="{{ prod.image_url }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;"></td>
+                    <td><strong>{{ prod.name }}</strong></td>
+                    <td>{{ prod.category }}</td>
+                    <td>{{ "%.2f"|format(prod.price) }} €</td>
+                    <td>{{ prod.stock }}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="/admin/product/edit/{{ prod.id }}" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.9rem; background-color: #64748b;">Modifier</a>
+                            <form action="/admin/product/delete/{{ prod.id }}" method="post" onsubmit="return confirm('Confirmer la suppression ?');" style="border: none; padding: 0; background: transparent; display: inline;">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.9rem;">Supprimer</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <h3>Suivi de toutes les commandes du site</h3>
+    {% if not orders %}
+        <p style="color: #64748b;">Aucune commande passée sur la boutique.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Commande ID</th>
+                    <th>Date</th>
+                    <th>Acheteur (ID)</th>
+                    <th>Montant Total</th>
+                    <th>Statut</th>
+                    <th>Mettre à jour le statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td><strong>#{{ order.id }}</strong></td>
+                        <td>{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>Utilisateur #{{ order.user_id }}</td>
+                        <td>{{ "%.2f"|format(order.total_price) }} €</td>
+                        <td>
+                            <span style="font-weight: bold; padding: 0.25rem 0.5rem; border-radius: 4px;
+                            {% if order.status == 'En cours' %} background: #fef3c7; color: #d97706;
+                            {% elif order.status == 'Expédiée' %} background: #dbeafe; color: #2563eb;
+                            {% else %} background: #dcfce7; color: #16a34a; {% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <form action="/admin/order/status/{{ order.id }}" method="post" style="border: none; padding: 0; background: transparent; display: flex; flex-direction: row; gap: 0.5rem; max-width: 250px;">
+                                <select name="status" onchange="this.form.submit()" style="padding: 0.25rem; font-size: 0.9rem;">
+                                    <option value="En cours" {% if order.status == 'En cours' %}selected{% endif %}>En cours</option>
+                                    <option value="Expédiée" {% if order.status == 'Expédiée' %}selected{% endif %}>Expédiée</option>
+                                    <option value="Livrée" {% if order.status == 'Livrée' %}selected{% endif %}>Livrée</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Profil de {{ target_user.username }} — UserHub{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">⬡</span>
+      <span>UserHub</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="nav-item active">
+        <span class="nav-icon">◈</span> Utilisateurs
+      </a>
+      <a href="/profile" class="nav-item">
+        <span class="nav-icon">◉</span> Mon Profil
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+      <div class="user-info">
+        <strong>{{ current_user.username }}</strong>
+        {% if current_user.is_admin %}<span class="badge-admin">Admin</span>{% endif %}
+      </div>
+      <a href="/logout" class="btn-logout" title="Déconnexion">⏻</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <a href="/dashboard" class="back-link">← Retour</a>
+        <h1>Profil utilisateur</h1>
+      </div>
+    </div>
+
+    <div class="view-profile-card">
+      <div class="profile-avatar-big">{{ target_user.username[0].upper() }}</div>
+      <div class="view-profile-info">
+        <h2>
+          {{ target_user.username }}
+          {% if target_user.is_admin %}<span class="badge-admin">Admin</span>{% endif %}
+        </h2>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ target_user.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">ID</span>
+          <span class="info-value">#{{ target_user.id }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Membre depuis</span>
+          <span class="info-value">{{ target_user.created_at.strftime('%d/%m/%Y à %H:%M') }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Rôle</span>
+          <span class="info-value">{{ 'Administrateur' if target_user.is_admin else 'Utilisateur' }}</span>
+        </div>
+      </div>
+
+      {% if current_user.is_admin and not target_user.is_admin %}
+      <div class="view-profile-actions">
+        <form method="post" action="/delete/{{ target_user.id }}" onsubmit="return confirmDelete('{{ target_user.username }}')">
+          <button type="submit" class="btn-danger-outline">Supprimer ce compte</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}

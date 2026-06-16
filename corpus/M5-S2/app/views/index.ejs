@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation de Salles</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+    
+    <main class="container">
+        <div class="hero">
+            <h1>Bienvenue sur la plateforme de réservation de salles</h1>
+            <p>Réservez facilement des salles de réunion pour votre équipe</p>
+            
+            <% if (!user) { %>
+            <div class="cta-buttons">
+                <a href="/login" class="btn btn-primary">Se connecter</a>
+                <a href="/register" class="btn btn-secondary">S'inscrire</a>
+            </div>
+            <% } else { %>
+            <div class="cta-buttons">
+                <a href="/rooms" class="btn btn-primary">Voir les salles disponibles</a>
+                <a href="/bookings/my-bookings" class="btn btn-secondary">Mes réservations</a>
+            </div>
+            <% } %>
+        </div>
+
+        <% if (user) { %>
+        <div class="quick-actions">
+            <h2>Actions rapides</h2>
+            <div class="actions-grid">
+                <a href="/rooms" class="action-card">
+                    <h3>🏢 Salles disponibles</h3>
+                    <p>Consultez la liste des salles et leurs équipements</p>
+                </a>
+                <a href="/bookings/my-bookings" class="action-card">
+                    <h3>📅 Mes réservations</h3>
+                    <p>Gérez vos réservations en cours</p>
+                </a>
+                <% if (user.role === 'admin') { %>
+                <a href="/admin/dashboard" class="action-card admin">
+                    <h3>⚙️ Administration</h3>
+                    <p>Tableau de bord et gestion des salles</p>
+                </a>
+                <% } %>
+            </div>
+        </div>
+        <% } %>
+    </main>
+
+    <%- include('partials/footer') %>
+</body>
+</html>

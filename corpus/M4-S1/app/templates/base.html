@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion d'Utilisateurs</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestion d'Utilisateurs</h1>
+        <nav>
+            {% if request.cookies.get('access_token') %}
+                <a href="/users/profile">Profil</a>
+                <a href="/users/list">Utilisateurs</a>
+                {% if current_user and current_user.is_admin %}
+                    <a href="/admin/dashboard">Admin</a>
+                {% endif %}
+                <a href="/auth/logout">Déconnexion</a>
+            {% else %}
+                <a href="/auth/login">Connexion</a>
+                <a href="/auth/register">Inscription</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2026 - Gestion d'Utilisateurs</p>
+    </footer>
+    <script src="/static/script.js"></script>
+</body>
+</html>

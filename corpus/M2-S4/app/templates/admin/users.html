@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Gestion Utilisateurs{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Utilisateurs</h1>
+    <button class="btn btn-primary" onclick="toggleModal('create-modal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouvel utilisateur
+    </button>
+</div>
+
+{% if request.query_params.get('success') == 'created' %}
+<div class="alert alert-success">Utilisateur créé avec succès.</div>
+{% elif request.query_params.get('success') == 'updated' %}
+<div class="alert alert-success">Utilisateur modifié avec succès.</div>
+{% elif request.query_params.get('success') == 'deleted' %}
+<div class="alert alert-success">Utilisateur supprimé.</div>
+{% elif request.query_params.get('error') == 'email' %}
+<div class="alert alert-error">Cet email est déjà utilisé.</div>
+{% elif request.query_params.get('error') == 'self' %}
+<div class="alert alert-error">Vous ne pouvez pas supprimer votre propre compte.</div>
+{% endif %}
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Département</th><th>Salaire</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for u in users %}
+        <tr>
+            <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                    {% if u.profile_picture %}
+                        <img src="/static/uploads/{{ u.profile_picture }}" class="avatar" alt="">
+                    {% else %}
+                        <div class="avatar avatar-placeholder">{{ u.full_name[0] }}</div>
+                    {% endif %}
+                    {{ u.full_name }}
+                </div>
+            </td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge-{{ u.role.value }}">{{ u.role.value | capitalize }}</span></td>
+            <td>{{ u.department or '—' }}</td>
+            <td>{{ "%.2f"|format(u.salary) }} €</td>
+            <td>
+                <a href="/admin/users/{{ u.id }}/edit" class="btn btn-outline btn-sm">Modifier</a>
+                {% if u.id != user.id %}
+                <form method="post" action="/admin/users/{{ u.id }}/delete" style="display:inline"
+                      onsubmit="return confirm('Supprimer {{ u.full_name }} ?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal création -->
+<div class="modal-overlay" id="create-modal" style="display:none">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3>Créer un utilisateur</h3>
+            <button onclick="toggleModal('create-modal')" class="modal-close">&times;</button>
+        </div>
+        <form method="post" action="/admin/users/create">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nom complet *</label>
+                        <input type="text" name="full_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" name="email" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mot de passe *</label>
+                        <input type="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Rôle *</label>
+                        <select name="role">
+                            <option value="employee">Employé</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Département</label>
+                        <input type="text" name="department">
+                    </div>
+                    <div class="form-group">
+                        <label>Poste</label>
+                        <input type="text" name="position">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Salaire (€/mois)</label>
+                        <input type="number" name="salary" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Téléphone</label>
+                        <input type="text" name="phone">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date d'embauche</label>
+                        <input type="date" name="hire_date">
+                    </div>
+                    <div class="form-group">
+                        <label>Manager</label>
+                        <select name="manager_id">
+                            <option value="">— Aucun —</option>
+                            {% for m in managers %}
+                            <option value="{{ m.id }}">{{ m.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="toggleModal('create-modal')">Annuler</button>
+                <button type="submit" class="btn btn-primary">Créer</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

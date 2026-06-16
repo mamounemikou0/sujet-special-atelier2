@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Gestion utilisateurs{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js" defer></script>
+</head>
+<body>
+<header>
+    <nav>
+        <a href="/">Accueil</a>
+        {% if request.session.get("user_id") %}
+            <a href="/profile">Mon profil</a>
+            <a href="/users">Utilisateurs</a>
+            <a href="/logout">Déconnexion</a>
+        {% else %}
+            <a href="/signup">Inscription</a>
+            <a href="/login">Connexion</a>
+        {% endif %}
+    </nav>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <p>Application de gestion d'utilisateurs - FastAPI + SQLite</p>
+</footer>
+</body>
+</html>

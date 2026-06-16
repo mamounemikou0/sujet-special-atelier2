@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Demandes de congés équipe{% endblock %}
+{% block content %}
+<h2>Demandes de congés de mon équipe</h2>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Employé</th>
+        <th>Début</th>
+        <th>Fin</th>
+        <th>Raison</th>
+        <th>Statut</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for leave in leaves %}
+        <tr>
+            <td>{{ leave.id }}</td>
+            <td>{{ leave.employee.full_name }}</td>
+            <td>{{ leave.start_date }}</td>
+            <td>{{ leave.end_date }}</td>
+            <td>{{ leave.reason }}</td>
+            <td>{{ leave.status }}</td>
+            <td>
+                {% if leave.status == 'pending' %}
+                <form method="post" action="/manager/leaves/decision" class="inline-form">
+                    <input type="hidden" name="leave_id" value="{{ leave.id }}">
+                    <button name="decision" value="approve">Approuver</button>
+                    <button name="decision" value="reject">Refuser</button>
+                </form>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7">Aucune demande.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Boutique{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+    <div class="container header-content">
+        <a href="/" class="logo">Ma e-boutique</a>
+        <nav>
+            <a href="/">Catalogue</a>
+            <a href="/cart">Panier</a>
+            {% if user %}
+                <a href="/orders">Mes commandes</a>
+                {% if user.is_admin %}
+                    <a href="/admin/">Admin</a>
+                {% endif %}
+                <a href="/logout">Déconnexion ({{ user.email }})</a>
+            {% else %}
+                <a href="/login">Connexion</a>
+                <a href="/register">Inscription</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+<footer>
+    <div class="container">
+        <p>Mini e-boutique - Démo FastAPI</p>
+    </div>
+</footer>
+<script src="/static/script.js"></script>
+</body>
+</html>

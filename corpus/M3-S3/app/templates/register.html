@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Inscription - E-Boutique{% endblock %}
+{% block content %}
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 2rem;">
+    <h2>Inscription</h2>
+    {% if error %}
+        <p style="color: var(--danger); font-weight: bold;">{{ error }}</p>
+    {% endif %}
+    <form method="post" action="/auth/register" id="registerForm">
+        <div class="form-group">
+            <label>Adresse Email</label>
+            <input type="email" name="email" required placeholder="nom@exemple.com">
+        </div>
+        <div class="form-group">
+            <label>Mot de passe</label>
+            <input type="password" name="password" id="pwd" required>
+        </div>
+        <div class="form-group">
+            <label>Adresse complète de livraison</label>
+            <textarea name="address" required rows="3" placeholder="Indiquez la rue, code postal et ville..."></textarea>
+        </div>
+        <button type="submit" class="btn">Créer mon compte</button>
+    </form>
+</div>
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        const pwd = document.getElementById('pwd').value;
+        if(pwd.length < 4) {
+            alert('Le mot de passe doit contenir au moins 4 caractères.');
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

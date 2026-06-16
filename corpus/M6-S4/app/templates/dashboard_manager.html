@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Manager{% endblock %}
+{% block content %}
+<h1>Bienvenue, {{ user.full_name }}</h1>
+<p>Rôle : Manager</p>
+<ul>
+    <li><a href="/employee/profile">Mon profil</a></li>
+    <li><a href="/manager/leaves">Demandes de congés de mon équipe</a></li>
+</ul>
+{% endblock %}

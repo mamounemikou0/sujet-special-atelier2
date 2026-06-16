@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Mon Profil{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Mon Profil</h1>
+</div>
+
+{% if request.query_params.get('success') == 'photo' %}
+<div class="alert alert-success">Photo de profil mise à jour.</div>
+{% endif %}
+
+<div class="profile-grid">
+    <!-- Photo + infos principales -->
+    <div class="card profile-card">
+        <div class="profile-avatar-section">
+            {% if user.profile_picture %}
+                <img src="/static/uploads/{{ user.profile_picture }}" alt="Photo" class="profile-avatar">
+            {% else %}
+                <div class="profile-avatar profile-avatar-placeholder">{{ user.full_name[0] }}</div>
+            {% endif %}
+            <form method="post" action="/employee/profile/upload-photo" enctype="multipart/form-data" class="upload-form">
+                <label class="btn btn-outline btn-sm" for="photo-upload">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Changer la photo
+                </label>
+                <input type="file" id="photo-upload" name="photo" accept="image/*" style="display:none" onchange="this.form.submit()">
+            </form>
+        </div>
+        <div class="profile-info">
+            <h2>{{ user.full_name }}</h2>
+            <span class="badge-{{ user.role.value }}">{{ user.role.value | capitalize }}</span>
+            {% if user.position %}
+                <p class="profile-position">{{ user.position }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Détails -->
+    <div class="card">
+        <h3 class="card-title">Informations personnelles</h3>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ user.email }}</span>
+            </div>
+            {% if user.phone %}
+            <div class="info-item">
+                <span class="info-label">Téléphone</span>
+                <span class="info-value">{{ user.phone }}</span>
+            </div>
+            {% endif %}
+            {% if user.department %}
+            <div class="info-item">
+                <span class="info-label">Département</span>
+                <span class="info-value">{{ user.department }}</span>
+            </div>
+            {% endif %}
+            {% if user.hire_date %}
+            <div class="info-item">
+                <span class="info-label">Date d'embauche</span>
+                <span class="info-value">{{ user.hire_date.strftime('%d/%m/%Y') }}</span>
+            </div>
+            {% endif %}
+            {% if manager %}
+            <div class="info-item">
+                <span class="info-label">Manager</span>
+                <span class="info-value">{{ manager.full_name }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Salaire -->
+    <div class="card salary-card">
+        <h3 class="card-title">Rémunération</h3>
+        <div class="salary-display">
+            <span class="salary-amount">{{ "%.2f"|format(user.salary) }} €</span>
+            <span class="salary-period">/ mois brut</span>
+        </div>
+        <div class="salary-breakdown">
+            <div class="salary-row">
+                <span>Salaire annuel brut</span>
+                <span>{{ "%.2f"|format(user.salary * 12) }} €</span>
+            </div>
+            <div class="salary-row">
+                <span>Net estimé (× 0.77)</span>
+                <span>{{ "%.2f"|format(user.salary * 0.77) }} €</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

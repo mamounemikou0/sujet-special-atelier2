@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Employé{% endblock %}
+{% block content %}
+<h1>Bienvenue, {{ user.full_name }}</h1>
+<p>Rôle : Employé</p>
+<p><a href="/employee/profile">Voir mon profil et mes congés</a></p>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Tableau de bord - Admin</h2>
+<div class="dashboard">
+    <div class="card">
+        <h3>Utilisateurs</h3>
+        <p><strong>Total :</strong> {{ users|length }}</p>
+        <a href="/admin/users" class="button">Gérer les utilisateurs</a>
+    </div>
+    <div class="card">
+        <h3>Demandes de congés</h3>
+        <p><strong>Total :</strong> {{ leave_requests|length }}</p>
+    </div>
+    <div class="card">
+        <h3>Statistiques</h3>
+        <a href="/admin/stats" class="button">Voir les statistiques</a>
+    </div>
+    <div class="card">
+        <h3>Salaires</h3>
+        <a href="/admin/salaries" class="button">Voir les salaires</a>
+    </div>
+</div>
+{% endblock %}

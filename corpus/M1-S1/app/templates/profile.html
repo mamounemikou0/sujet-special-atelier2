@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Profil</h1>
+
+<form method="post" action="/profile/update">
+
+    <input
+        type="email"
+        name="email"
+        value="{{ user.email }}"
+        required
+    >
+
+    <input
+        type="text"
+        name="username"
+        value="{{ user.username }}"
+        required
+    >
+
+    <input
+        type="password"
+        name="password"
+        placeholder="Nouveau mot de passe"
+    >
+
+    <button type="submit">
+        Mettre à jour
+    </button>
+
+</form>
+
+<br>
+
+<a class="danger" href="/delete-account">
+    Supprimer mon compte
+</a>
+
+{% endblock %}

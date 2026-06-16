@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Mon profil</h2>
+<div class="profile">
+    <div class="profile-picture">
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture }}" alt="Photo de profil">
+        {% else %}
+            <p>Aucune photo de profil</p>
+        {% endif %}
+        <form action="/employee/upload-profile-picture" method="post" enctype="multipart/form-data">
+            <input type="file" name="profile_picture" required>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+    <div class="profile-info">
+        <p><strong>Nom :</strong> {{ user.full_name }}</p>
+        <p><strong>Email :</strong> {{ user.email }}</p>
+        <p><strong>Département :</strong> {{ user.department.value }}</p>
+        <p><strong>Salaire :</strong> {{ user.salary }} €</p>
+        <p><strong>Manager :</strong> {{ user.manager.full_name if user.manager else "Aucun" }}</p>
+    </div>
+</div>
+{% endblock %}

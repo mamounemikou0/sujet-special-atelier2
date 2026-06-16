@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - E-Boutique</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">E-Boutique</a>
+            <div class="nav-links">
+                <span>Admin: {{ user.username }}</span>
+                <a href="/admin">Dashboard</a>
+                <a href="/logout">Déconnexion</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="showTab('products')">Produits</button>
+            <button class="tab-btn" onclick="showTab('orders')">Commandes</button>
+        </div>
+        
+        <!-- Products Tab -->
+        <div id="products" class="tab-content active">
+            <h2>Gestion des produits</h2>
+            
+            <div class="add-product-form">
+                <h3>Ajouter un produit</h3>
+                <form action="/admin/product/add" method="POST" class="product-form">
+                    <input type="text" name="name" placeholder="Nom" required>
+                    <textarea name="description" placeholder="Description" required></textarea>
+                    <input type="number" step="0.01" name="price" placeholder="Prix" required>
+                    <input type="number" name="stock" placeholder="Stock" required>
+                    <input type="text" name="image_url" placeholder="URL de l'image" required>
+                    <input type="text" name="category" placeholder="Catégorie" required>
+                    <button type="submit">Ajouter</button>
+                </form>
+            </div>
+            
+            <div class="products-list">
+                <h3>Produits existants</h3>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Prix</th>
+                            <th>Stock</th>
+                            <th>Catégorie</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                            <tr>
+                                <form action="/admin/product/edit/{{ product.id }}" method="POST" style="display: inline;">
+                                    <td>{{ product.id }}</td>
+                                    <td><input type="text" name="name" value="{{ product.name }}" required></td>
+                                    <td><input type="number" step="0.01" name="price" value="{{ product.price }}" required></td>
+                                    <td><input type="number" name="stock" value="{{ product.stock }}" required></td>
+                                    <td><input type="text" name="category" value="{{ product.category }}" required></td>
+                                    <td>
+                                        <input type="hidden" name="description" value="{{ product.description }}">
+                                        <input type="hidden" name="image_url" value="{{ product.image_url }}">
+                                        <button type="submit">Modifier</button>
+                                    </td>
+                                </form>
+                                <td>
+                                    <form action="/admin/product/delete/{{ product.id }}" method="POST" onsubmit="return confirm('Supprimer ce produit ?')">
+                                        <button type="submit" class="btn-danger">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Orders Tab -->
+        <div id="orders" class="tab-content">
+            <h2>Gestion des commandes</h2>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes réservations – RoomBook</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav id="nav"></nav>
+  <main class="page">
+    <div class="container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Mes réservations</h1>
+          <p class="page-subtitle" id="resaCount"></p>
+        </div>
+        <a href="/reservations/new" class="btn btn-primary">+ Nouvelle réservation</a>
+      </div>
+
+      <div class="card">
+        <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
+          <label style="font-size:.85rem;font-weight:500">Filtrer :</label>
+          <select id="filterStatus" class="form-control" style="width:auto;padding:.3rem .65rem;font-size:.85rem">
+            <option value="all">Toutes</option>
+            <option value="active">Actives</option>
+            <option value="cancelled">Annulées</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Salle</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Objet</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="resaTableBody">
+              <tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/layout.js"></script>
+  <script>
+    let allResas = [];
+
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function renderTable(resas) {
+      const tbody = document.getElementById('resaTableBody');
+      if (resas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6">
+          <div class="empty-state">
+            <div class="emoji">📅</div>
+            <h3>Aucune réservation</h3>
+            <p>Cliquez sur "+ Nouvelle réservation" pour commencer.</p>
+          </div>
+        </td></tr>`;
+        return;
+      }
+
+      const now = new Date();
+      tbody.innerHTML = resas.map(r => {
+        const dt = new Date(r.date + 'T' + String(r.hour).padStart(2,'0') + ':00:00');
+        const isPast = dt < now;
+        const statusBadge = r.status === 'active'
+          ? (isPast ? '<span class="badge badge-past">Passée</span>' : '<span class="badge badge-active">Active</span>')
+          : '<span class="badge badge-cancelled">Annulée</span>';
+
+        const canEdit = r.status === 'active' && !isPast;
+        return `<tr>
+          <td><strong>${esc(r.room_name)}</strong></td>
+          <td>${new Date(r.date + 'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})}</td>
+          <td>${String(r.hour).padStart(2,'0')}h00 – ${String(r.hour+1).padStart(2,'0')}h00</td>
+          <td>${esc(r.title)}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+              <a href="/rooms/${r.room_id}" class="btn btn-outline btn-sm">Calendrier</a>
+              ${canEdit ? `<a href="/reservations/${r.id}/edit" class="btn btn-secondary btn-sm">Modifier</a>` : ''}
+              ${canEdit ? `
+                <form method="POST" action="/reservations/${r.id}/cancel" onsubmit="return confirm('Annuler cette réservation ?')" style="display:inline">
+                  <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
+                </form>` : ''}
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    document.getElementById('filterStatus').addEventListener('change', e => {
+      const v = e.target.value;
+      const now = new Date();
+      renderTable(allResas.filter(r => {
+        if (v === 'all') return true;
+        if (v === 'active') return r.status === 'active';
+        if (v === 'cancelled') return r.status === 'cancelled';
+        return true;
+      }));
+    });
+
+    (async () => {
+      await initLayout();
+      const res = await fetch('/api/reservations');
+      allResas = await res.json();
+      document.getElementById('resaCount').textContent = `${allResas.filter(r=>r.status==='active').length} réservation(s) active(s)`;
+      renderTable(allResas);
+    })();
+  </script>
+</body>
+</html>

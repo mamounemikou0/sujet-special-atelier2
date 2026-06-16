@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Salaires{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Tous les salaires</h1>
+    <a href="/admin/export/csv" class="btn btn-outline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exporter CSV
+    </a>
+</div>
+
+{% set total = namespace(val=0) %}
+{% for u in users %}{% set total.val = total.val + u.salary %}{% endfor %}
+
+<div class="stats-row">
+    <div class="stat-card">
+        <span class="stat-number">{{ "%.2f"|format(total.val) }} €</span>
+        <span class="stat-label">Masse salariale mensuelle</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ "%.2f"|format(total.val * 12) }} €</span>
+        <span class="stat-label">Masse salariale annuelle</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ "%.2f"|format(total.val / users|length) }} €</span>
+        <span class="stat-label">Salaire moyen</span>
+    </div>
+</div>
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr><th>Nom</th><th>Rôle</th><th>Département</th><th>Poste</th><th>Salaire/mois</th><th>Salaire/an</th></tr>
+        </thead>
+        <tbody>
+        {% set current_dept = namespace(val='') %}
+        {% for u in users %}
+        {% if u.department != current_dept.val %}
+            {% set current_dept.val = u.department %}
+            <tr class="dept-row"><td colspan="6">{{ u.department or 'Non assigné' }}</td></tr>
+        {% endif %}
+        <tr>
+            <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                    {% if u.profile_picture %}
+                        <img src="/static/uploads/{{ u.profile_picture }}" class="avatar" alt="">
+                    {% else %}
+                        <div class="avatar avatar-placeholder">{{ u.full_name[0] }}</div>
+                    {% endif %}
+                    {{ u.full_name }}
+                </div>
+            </td>
+            <td><span class="badge-{{ u.role.value }}">{{ u.role.value | capitalize }}</span></td>
+            <td>{{ u.department or '—' }}</td>
+            <td>{{ u.position or '—' }}</td>
+            <td><strong>{{ "%.2f"|format(u.salary) }} €</strong></td>
+            <td>{{ "%.2f"|format(u.salary * 12) }} €</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="4"><strong>Total</strong></td>
+                <td><strong>{{ "%.2f"|format(total.val) }} €</strong></td>
+                <td><strong>{{ "%.2f"|format(total.val * 12) }} €</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Mes commandes{% endblock %}
+{% block content %}
+<h1>Mes commandes</h1>
+{% if orders %}
+    {% for order in orders %}
+        <div class="order-card">
+            <h3>Commande #{{ order.id }} - {{ order.status.value }}</h3>
+            <p>Total : {{ "%.2f"|format(order.total_amount) }} €</p>
+            <p>Adresse : {{ order.shipping_address }}</p>
+            <ul>
+                {% for item in order.items %}
+                    <li>{{ item.product.name }} x {{ item.quantity }} ({{ "%.2f"|format(item.unit_price) }} €)</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+{% else %}
+<p>Aucune commande pour le moment.</p>
+{% endif %}
+{% endblock %}

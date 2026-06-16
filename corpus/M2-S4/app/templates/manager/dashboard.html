@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Manager{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Tableau de bord</h1>
+    <span class="page-subtitle">{{ user.department }}</span>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <span class="stat-number">{{ team | length }}</span>
+        <span class="stat-label">Membres d'équipe</span>
+    </div>
+    <div class="stat-card stat-card-warning">
+        <span class="stat-number">{{ pending_leaves | length }}</span>
+        <span class="stat-label">Congés en attente</span>
+    </div>
+</div>
+
+{% if pending_leaves %}
+<div class="card">
+    <h3 class="card-title">Demandes de congés en attente</h3>
+    <table class="table">
+        <thead>
+            <tr><th>Employé</th><th>Période</th><th>Motif</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for leave in pending_leaves %}
+        <tr>
+            <td>
+                {% for member in team %}{% if member.id == leave.user_id %}{{ member.full_name }}{% endif %}{% endfor %}
+            </td>
+            <td>{{ leave.start_date.strftime('%d/%m/%Y') }} → {{ leave.end_date.strftime('%d/%m/%Y') }}</td>
+            <td>{{ leave.reason or '—' }}</td>
+            <td>
+                <form method="post" action="/manager/leaves/{{ leave.id }}/action" style="display:inline-flex;gap:6px">
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn btn-success btn-sm">✓ Approuver</button>
+                </form>
+                <form method="post" action="/manager/leaves/{{ leave.id }}/action" style="display:inline-flex;gap:6px" onsubmit="return addComment(this)">
+                    <input type="hidden" name="action" value="refuse">
+                    <input type="hidden" name="comment" value="">
+                    <button type="submit" class="btn btn-danger btn-sm">✗ Refuser</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="card">
+    <h3 class="card-title">Mon équipe</h3>
+    <div class="team-grid">
+    {% for member in team %}
+        <div class="team-card">
+            {% if member.profile_picture %}
+                <img src="/static/uploads/{{ member.profile_picture }}" alt="" class="team-avatar">
+            {% else %}
+                <div class="team-avatar team-avatar-placeholder">{{ member.full_name[0] }}</div>
+            {% endif %}
+            <div class="team-info">
+                <strong>{{ member.full_name }}</strong>
+                <span>{{ member.position or member.department or '—' }}</span>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

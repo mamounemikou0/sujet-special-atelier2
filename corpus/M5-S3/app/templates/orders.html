@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes commandes - E-Boutique</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">E-Boutique</a>
+            <div class="nav-links">
+                <span>Bienvenue, {{ user.username }}</span>
+                <a href="/orders">Mes commandes</a>
+                <a href="/cart">Panier</a>
+                <a href="/logout">Déconnexion</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Historique des commandes</h1>
+        
+        {% if orders %}
+            {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <strong>Commande #{{ order.id }}</strong>
+                            <span class="order-date">{{ order.order_date.strftime('%d/%m/%Y %H:%M') }}</span>
+                        </div>
+                        <div>
+                            Statut: <span class="order-status">{{ order.status }}</span>
+                            Total: <strong>{{ "%.2f"|format(order.total_amount) }} €</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="order-items">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Prix unitaire</th>
+                                    <th>Quantité</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items %}
+                                    <tr>
+                                        <td>{{ item.product_name }}</td>
+                                        <td>{{ "%.2f"|format(item.product_price) }} €</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>{{ "%.2f"|format(item.product_price * item.quantity) }} €</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Vous n'avez pas encore passé de commande.</p>
+            <a href="/" class="btn">Découvrir nos produits</a>
+        {% endif %}
+    </div>
+</body>
+</html>

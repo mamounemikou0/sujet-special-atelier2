@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des utilisateurs{% endblock %}
+
+{% block content %}
+<h1>Utilisateurs</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Nom d'utilisateur</th>
+        <th>Admin</th>
+        <th>Créé le</th>
+        {% if user.is_admin %}
+            <th>Actions</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ "Oui" if u.is_admin else "Non" }}</td>
+            <td>{{ u.created_at }}</td>
+            {% if user.is_admin %}
+                <td>
+                    {% if u.id != user.id %}
+                    <form method="post" action="/admin/users/{{ u.id }}/delete"
+                          onsubmit="return confirmDeleteUser('{{ u.username }}');">
+                        <button type="submit" class="danger">Supprimer</button>
+                    </form>
+                    {% else %}
+                        (vous)
+                    {% endif %}
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

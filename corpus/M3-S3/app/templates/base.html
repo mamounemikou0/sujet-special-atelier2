@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ma Boutique{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div>
+            <a href="/catalog" style="font-size: 1.5rem; font-weight: bold; margin-left: 0; color: var(--primary);">🏪 E-Boutique</a>
+        </div>
+        <div>
+            <a href="/catalog">Catalogue</a>
+            <a href="/cart">Panier 🛒</a>
+            {% if request.state.user %}
+                <a href="/catalog/orders">Mes Commandes</a>
+                {% if request.state.user.is_admin %}
+                    <a href="/admin" style="color: var(--danger); font-weight: bold;">Admin ⚙️</a>
+                {% endif %}
+                <span style="margin-left: 1.5rem; color: #64748b;">({{ request.state.user.email }})</span>
+                <a href="/auth/logout" style="color: var(--danger);">Déconnexion</a>
+            {% else %}
+                <a href="/auth/login">Connexion</a>
+                <a href="/auth/register">Inscription</a>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salles – RoomBook</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav id="nav"></nav>
+  <main class="page">
+    <div class="container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Salles de réunion</h1>
+          <p class="page-subtitle">Sélectionnez une salle pour consulter ses disponibilités</p>
+        </div>
+        <div id="managerActions" class="hidden">
+          <a href="/rooms/manage/new" class="btn btn-primary">+ Ajouter une salle</a>
+        </div>
+      </div>
+
+      <div id="roomsGrid" class="room-grid">
+        <div class="empty-state"><div class="emoji">⏳</div><p>Chargement…</p></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/layout.js"></script>
+  <script>
+    (async () => {
+      const session = await initLayout();
+      if (!session) return;
+
+      if (session.userRole === 'gestionnaire') {
+        document.getElementById('managerActions').classList.remove('hidden');
+      }
+
+      const res = await fetch('/api/rooms');
+      const rooms = await res.json();
+      const grid = document.getElementById('roomsGrid');
+
+      if (rooms.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+          <div class="emoji">🏢</div><h3>Aucune salle disponible</h3>
+          <p>Demandez à un gestionnaire d'en ajouter.</p>
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = rooms.map(r => `
+        <div class="card room-card" onclick="location.href='/rooms/${r.id}'">
+          ${r.photo_url
+            ? `<img class="room-img" src="${escHtml(r.photo_url)}" alt="${escHtml(r.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ''}
+          <div class="room-img-placeholder" style="${r.photo_url ? 'display:none' : ''}">🏢</div>
+          <div class="room-info">
+            <div class="room-name">${escHtml(r.name)}</div>
+            <div class="room-capacity">👥 ${r.capacity} personnes</div>
+            <div class="room-equipment">🔧 ${escHtml(r.equipment) || 'Non précisé'}</div>
+            <div class="room-actions">
+              <a href="/rooms/${r.id}" class="btn btn-primary btn-sm" onclick="event.stopPropagation()">Voir le calendrier</a>
+              ${session.userRole === 'gestionnaire' ? `
+                <a href="/rooms/manage/${r.id}/edit" class="btn btn-outline btn-sm" onclick="event.stopPropagation()">Modifier</a>
+                <form method="POST" action="/rooms/manage/${r.id}/delete" onsubmit="return confirm('Désactiver cette salle ?')" style="display:inline" onclick="event.stopPropagation()">
+                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                </form>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    })();
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

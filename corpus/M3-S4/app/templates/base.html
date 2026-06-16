@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PME Workspace{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+    <nav class="bg-indigo-600 text-white shadow-md px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold tracking-wide">PME Admin Pro</div>
+        {% if user %}
+        <div class="flex items-center space-x-4">
+            <img src="/static/uploads/{{ user.profile_pic }}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'" class="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm">
+            <div>
+                <span class="font-semibold block text-sm">{{ user.name }}</span>
+                <span class="text-[10px] bg-indigo-800 px-2 py-0.5 rounded uppercase font-bold tracking-wider">{{ user.role }}</span>
+            </div>
+            <div class="flex space-x-3 border-l pl-4 border-indigo-400 text-sm">
+                <a href="/dashboard" class="hover:text-indigo-200">Tableau de bord</a>
+                {% if user.role == 'Admin' %}
+                <a href="/admin/stats" class="hover:text-indigo-200 font-semibold">Statistiques</a>
+                {% endif %}
+                <a href="/logout" class="text-red-200 hover:text-white font-medium">Déconnexion</a>
+            </div>
+        </div>
+        {% endif %}
+    </nav>
+    <main class="flex-grow container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-gray-800 text-gray-400 text-center py-4 text-xs mt-auto">
+        &copy; 2026 PME Admin Pro. Panel d'administration interne.
+    </footer>
+</body>
+</html>

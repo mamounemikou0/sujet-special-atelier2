@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salle – RoomBook</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .room-hero { display:flex; gap:1.5rem; margin-bottom:2rem; flex-wrap:wrap; }
+    .room-hero-img { width:320px; height:200px; object-fit:cover; border-radius:var(--radius); flex-shrink:0; }
+    .room-hero-placeholder { width:320px; height:200px; background:linear-gradient(135deg,#1a1a2e,#0f3460); border-radius:var(--radius); display:flex; align-items:center; justify-content:center; font-size:4rem; flex-shrink:0; }
+    .room-hero-info { flex:1; min-width:220px; }
+    .legend { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; font-size:.8rem; }
+    .legend-item { display:flex; align-items:center; gap:.35rem; }
+    .legend-dot { width:14px; height:14px; border-radius:3px; }
+    .dot-free { background:#f0fdf4; border:1px solid #bbf7d0; }
+    .dot-mine { background:#eff6ff; border:1px solid #bfdbfe; }
+    .dot-taken { background:#fef2f2; border:1px solid #fecaca; }
+    .dot-past { background:#f3f4f6; border:1px solid #e5e7eb; }
+  </style>
+</head>
+<body>
+  <nav id="nav"></nav>
+  <main class="page">
+    <div class="container">
+      <div style="margin-bottom:1rem">
+        <a href="/rooms" class="btn btn-outline btn-sm">← Retour aux salles</a>
+      </div>
+
+      <div id="roomHero"><!-- filled by JS --></div>
+
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="card-body">
+          <div class="calendar-nav">
+            <button class="btn btn-outline btn-sm" id="prevWeek">◀ Semaine préc.</button>
+            <strong id="weekLabel" style="font-size:.95rem"></strong>
+            <button class="btn btn-outline btn-sm" id="nextWeek">Semaine suiv. ▶</button>
+            <input type="date" id="jumpDate" class="form-control" style="width:auto;padding:.35rem .65rem">
+          </div>
+
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot dot-free"></div> Disponible</div>
+            <div class="legend-item"><div class="legend-dot dot-mine"></div> Ma réservation</div>
+            <div class="legend-item"><div class="legend-dot dot-taken"></div> Occupé</div>
+            <div class="legend-item"><div class="legend-dot dot-past"></div> Passé</div>
+          </div>
+
+          <div class="week-grid" id="calendarGrid"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/layout.js"></script>
+  <script>
+    const roomId = location.pathname.split('/').filter(Boolean)[1];
+    const HOURS = [8,9,10,11,12,13,14,15,16,17,18];
+    const DAYS = ['Lun','Mar','Mer','Jeu','Ven'];
+    let currentMonday = getMonday(new Date());
+    let session = null;
+
+    function getMonday(d) {
+      const dt = new Date(d);
+      const day = dt.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      dt.setDate(dt.getDate() + diff);
+      dt.setHours(0,0,0,0);
+      return dt;
+    }
+
+    function formatDate(d) {
+      return d.toISOString().slice(0,10);
+    }
+
+    function addDays(d, n) {
+      const dt = new Date(d);
+      dt.setDate(dt.getDate() + n);
+      return dt;
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#9ca3af">Chargement…</div>';
+
+      const weekDates = DAYS.map((_, i) => addDays(currentMonday, i));
+      const labelEl = document.getElementById('weekLabel');
+      labelEl.textContent = `Semaine du ${weekDates[0].toLocaleDateString('fr-FR',{day:'2-digit',month:'long'})} au ${weekDates[4].toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})}`;
+
+      // Fetch all days in parallel
+      const slotsByDate = {};
+      await Promise.all(weekDates.map(async d => {
+        const dateStr = formatDate(d);
+        const res = await fetch(`/api/rooms/${roomId}/slots?date=${dateStr}`);
+        const slots = await res.json();
+        slotsByDate[dateStr] = {};
+        slots.forEach(s => slotsByDate[dateStr][s.hour] = s);
+      }));
+
+      // Build grid HTML
+      let html = '';
+      // Header row
+      html += '<div class="week-header"></div>';
+      weekDates.forEach((d, i) => {
+        html += `<div class="week-header">${DAYS[i]}<br><span style="font-weight:400;font-size:.72rem">${d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})}</span></div>`;
+      });
+
+      const now = new Date();
+      HOURS.forEach(hour => {
+        html += `<div class="time-label">${hour}h</div>`;
+        weekDates.forEach(d => {
+          const dateStr = formatDate(d);
+          const slotData = slotsByDate[dateStr]?.[hour];
+          const slotTime = new Date(dateStr + 'T' + String(hour).padStart(2,'0') + ':00:00');
+          const isPast = slotTime < now;
+
+          if (isPast) {
+            html += `<div class="slot past"><span class="slot-label" style="font-size:.7rem;color:#9ca3af">—</span></div>`;
+          } else if (slotData) {
+            const isMine = slotData.user_id === session.userId;
+            if (isMine) {
+              html += `<div class="slot reserved-mine" onclick="location.href='/reservations/${slotData.id}/edit'">
+                <span class="slot-label">✏️ ${esc(slotData.title)}</span>
+              </div>`;
+            } else {
+              html += `<div class="slot reserved">
+                <span class="slot-label">🔒 ${esc(slotData.user_name)}</span>
+              </div>`;
+            }
+          } else {
+            html += `<div class="slot" onclick="location.href='/reservations/new?room_id=${roomId}&date=${dateStr}&hour=${hour}'">
+              <span class="slot-label" style="color:#10b981;font-size:.75rem">+ Réserver</span>
+            </div>`;
+          }
+        });
+      });
+
+      grid.innerHTML = html;
+    }
+
+    (async () => {
+      session = await initLayout();
+      if (!session) return;
+
+      const res = await fetch(`/api/rooms/${roomId}`);
+      if (!res.ok) { location.href = '/rooms'; return; }
+      const room = await res.json();
+
+      document.title = room.name + ' – RoomBook';
+      document.getElementById('roomHero').innerHTML = `
+        <div class="room-hero">
+          ${room.photo_url
+            ? `<img class="room-hero-img" src="${esc(room.photo_url)}" alt="${esc(room.name)}">`
+            : `<div class="room-hero-placeholder">🏢</div>`}
+          <div class="room-hero-info">
+            <h1 class="page-title">${esc(room.name)}</h1>
+            <p style="color:var(--text-muted);margin:.35rem 0 .75rem">👥 Capacité : <strong>${room.capacity} personnes</strong></p>
+            <p style="font-size:.88rem;color:var(--text-muted)">🔧 ${esc(room.equipment) || 'Équipements non précisés'}</p>
+            ${session.userRole === 'gestionnaire' ? `<div style="margin-top:1rem"><a href="/rooms/manage/${room.id}/edit" class="btn btn-outline btn-sm">Modifier la salle</a></div>` : ''}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('prevWeek').onclick = () => {
+        currentMonday = addDays(currentMonday, -7);
+        renderCalendar();
+      };
+      document.getElementById('nextWeek').onclick = () => {
+        currentMonday = addDays(currentMonday, 7);
+        renderCalendar();
+      };
+      document.getElementById('jumpDate').addEventListener('change', e => {
+        if (e.target.value) {
+          currentMonday = getMonday(new Date(e.target.value + 'T12:00:00'));
+          renderCalendar();
+        }
+      });
+
+      renderCalendar();
+    })();
+  </script>
+</body>
+</html>

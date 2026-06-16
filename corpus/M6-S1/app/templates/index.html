@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<h1>Bienvenue</h1>
+
+{% if request.session.get("user_id") %}
+    <p>Vous êtes connecté. Accédez à votre <a href="/profile">profil</a> ou à la <a href="/users">liste des utilisateurs</a>.</p>
+{% else %}
+    <p>
+        <a href="/signup">Créer un compte</a> ou
+        <a href="/login">se connecter</a>.
+    </p>
+    <p>Compte admin par défaut : <code>admin@example.com</code> / <code>admin123</code></p>
+{% endif %}
+{% endblock %}

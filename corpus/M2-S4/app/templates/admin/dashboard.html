@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Tableau de bord</h1>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <span class="stat-number">{{ total_users }}</span>
+        <span class="stat-label">Utilisateurs total</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ total_employees }}</span>
+        <span class="stat-label">Employés</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ total_managers }}</span>
+        <span class="stat-label">Managers</span>
+    </div>
+    <div class="stat-card stat-card-warning">
+        <span class="stat-number">{{ pending_leaves }}</span>
+        <span class="stat-label">Congés en attente</span>
+    </div>
+    <div class="stat-card stat-card-success">
+        <span class="stat-number">{{ "%.0f"|format(salary_sum) }} €</span>
+        <span class="stat-label">Masse salariale/mois</span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header-row">
+        <h3 class="card-title">Utilisateurs récents</h3>
+        <a href="/admin/users" class="btn btn-outline btn-sm">Voir tous</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Département</th><th>Créé le</th></tr>
+        </thead>
+        <tbody>
+        {% for u in recent_users %}
+        <tr>
+            <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                    {% if u.profile_picture %}
+                        <img src="/static/uploads/{{ u.profile_picture }}" class="avatar" alt="">
+                    {% else %}
+                        <div class="avatar avatar-placeholder">{{ u.full_name[0] }}</div>
+                    {% endif %}
+                    {{ u.full_name }}
+                </div>
+            </td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge-{{ u.role.value }}">{{ u.role.value | capitalize }}</span></td>
+            <td>{{ u.department or '—' }}</td>
+            <td>{{ u.created_at.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="actions-grid">
+    <a href="/admin/users" class="action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Gérer les utilisateurs</span>
+    </a>
+    <a href="/admin/stats" class="action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Statistiques</span>
+    </a>
+    <a href="/admin/export/csv" class="action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Exporter CSV</span>
+    </a>
+    <a href="/admin/salaries" class="action-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span>Salaires</span>
+    </a>
+</div>
+{% endblock %}

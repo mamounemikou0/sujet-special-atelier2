@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <h2>Mon Application</h2>
+        <div>
+            <span id="navUsername"></span>
+            <button onclick="logout()">Déconnexion</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="messageBox" class="hidden"></div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>Mon Profil</h3>
+                <form id="profileForm">
+                    <label>Nom d'utilisateur</label>
+                    <input type="text" id="profUsername" required>
+                    <label>Email</label>
+                    <input type="email" id="profEmail" required>
+                    <label>Nouveau mot de passe (optionnel)</label>
+                    <input type="password" id="profPassword">
+                    <button type="submit">Mettre à jour</button>
+                </form>
+                <button class="danger-btn" onclick="deleteMyAccount()">Supprimer mon compte</button>
+            </div>
+
+            <div class="card">
+                <h3>Liste des utilisateurs</h3>
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Admin</th>
+                            <th id="adminActionHeader" style="display: none;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+    <script>
+        // Vérification de sécurité
+        if (!localStorage.getItem("token")) {
+            window.location.href = "/";
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            loadMyProfile();
+            loadUsers();
+        });
+    </script>
+</body>
+</html>

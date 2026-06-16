@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord - PME</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Tableau de bord PME</h1>
+        <nav>
+            {% if request.session.get('user_id') %}
+                <span>Bonjour, {{ user.full_name }} ({{ user.role.value }})</span>
+                <a href="/auth/logout">Déconnexion</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>© 2026 PME Dashboard</p>
+    </footer>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>

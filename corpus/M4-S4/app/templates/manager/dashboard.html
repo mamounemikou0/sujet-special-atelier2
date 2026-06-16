@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Tableau de bord - Manager</h2>
+<div class="dashboard">
+    <div class="card">
+        <h3>Mon équipe</h3>
+        <p><strong>Nombre d'employés :</strong> {{ team|length }}</p>
+        <a href="/manager/team" class="button">Voir l'équipe</a>
+    </div>
+    <div class="card">
+        <h3>Demandes de congés en attente</h3>
+        <p><strong>Nombre :</strong> {{ leave_requests|length }}</p>
+        <a href="/manager/leave-approvals" class="button">Gérer les congés</a>
+    </div>
+</div>
+{% endblock %}

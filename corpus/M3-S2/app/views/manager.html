@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Espace Gestionnaire</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">🏠 Accueil</a>
+            <a href="/manager" class="active">📊 Gestion</a>
+            <span class="user-info">Administrateur : <strong><%= user.email %></strong></span>
+            <a href="/auth/logout" class="btn btn-small logout-btn">Déconnexion</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2>Tableau de bord : Taux d'occupation global</h2>
+        <div class="stats-grid">
+            <% stats.forEach(s => { %>
+                <div class="stat-card">
+                    <h4><%= s.name %></h4>
+                    <p>Réservations passées : <strong><%= s.bookedCount %></strong></p>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: <%= s.occupancyRate %>%;"></div>
+                    </div>
+                    <span style="font-size:0.8rem; color:#64748b;"><%= s.occupancyRate %>% de charge machine</span>
+                </div>
+            <% }) %>
+        </div>
+
+        <hr>
+
+        <h3>🏢 Configuration du parc de salles</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Capacité</th>
+                    <th>Équipements</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% rooms.forEach(room => { %>
+                    <tr>
+                        <td><strong><%= room.name %></strong></td>
+                        <td><%= room.capacity %> pers.</td>
+                        <td><%= room.equipment %></td>
+                        <td>
+                            <div style="display: flex; gap:0.25rem;">
+                                <a href="/manager/rooms/edit/<%= room.id %>" class="btn btn-small btn-warning">Modifier</a>
+                                <form action="/manager/rooms/delete/<%= room.id %>" method="POST">
+                                    <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Attention : supprimer cette salle détruira toutes ses réservations rattachées.')">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <div class="add-room-box">
+            <h4>Ajouter une nouvelle salle de réunion</h4>
+            <form action="/manager/rooms/add" method="POST" class="horizontal-form">
+                <input type="text" name="name" placeholder="Nom de la salle" required>
+                <input type="number" name="capacity" placeholder="Capacité" required>
+                <input type="text" name="equipment" placeholder="Équipements (ex: Écran, Tableau)" required>
+                <input type="url" name="photo_url" placeholder="URL absolue de la photo" required>
+                <button type="submit" class="btn btn-success">Créer la salle</button>
+            </form>
+        </div>
+
+        <hr>
+
+        <h3>📅 Contrôle général des réservations actives</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Heure</th>
+                    <th>Salle</th>
+                    <th>Collaborateur</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(allBookings.length === 0) { %>
+                    <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Aucune réservation enregistrée à ce jour.</td></tr>
+                <% } %>
+                <% allBookings.forEach(b => { %>
+                    <tr>
+                        <td><%= b.date %></td>
+                        <td><%= b.start_hour %>h00</td>
+                        <td><%= b.room_name %></td>
+                        <td><%= b.user_email %></td>
+                        <td>
+                            <form action="/bookings/delete/<%= b.id %>" method="POST">
+                                <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Forcer l\'annulation complète ?')">Révoquer</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>

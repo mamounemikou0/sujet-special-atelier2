@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription – RoomBook</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">Room<span>Book</span></div>
+    <p class="auth-subtitle">Créer votre compte</p>
+
+    <div id="errorMsg" class="alert alert-danger hidden"></div>
+
+    <form method="POST" action="/register">
+      <div class="form-group">
+        <label class="form-label">Nom complet</label>
+        <input type="text" name="name" class="form-control" placeholder="Jean Dupont" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adresse email</label>
+        <input type="email" name="email" class="form-control" placeholder="vous@exemple.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" name="password" class="form-control" placeholder="Min. 6 caractères" required minlength="6">
+        <p class="form-hint">Au moins 6 caractères</p>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.7rem;">
+        Créer mon compte
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Déjà un compte ? <a href="/login">Se connecter</a>
+    </div>
+  </div>
+
+  <script>
+    const errors = { '1': 'Données invalides ou mot de passe trop court.', '2': 'Cet email est déjà utilisé.' };
+    const code = new URLSearchParams(location.search).get('error');
+    if (code && errors[code]) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = '✗ ' + errors[code];
+      el.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

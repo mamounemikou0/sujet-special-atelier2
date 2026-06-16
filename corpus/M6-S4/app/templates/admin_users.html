@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Gestion des utilisateurs{% endblock %}
+{% block content %}
+<h2>Gestion des utilisateurs</h2>
+
+<h3>Créer un utilisateur</h3>
+<form method="post" action="/admin/users/create" class="user-form">
+    <input type="text" name="full_name" placeholder="Nom complet" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Mot de passe" required>
+    <input type="text" name="department" placeholder="Département">
+    <input type="number" step="0.01" name="salary" placeholder="Salaire">
+    <select name="role">
+        <option value="employee">Employé</option>
+        <option value="manager">Manager</option>
+        <option value="admin">Admin</option>
+    </select>
+    <input type="number" name="manager_id" placeholder="ID manager (optionnel)">
+    <button type="submit">Créer</button>
+</form>
+
+<h3>Liste des utilisateurs</h3>
+<table class="table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Rôle</th>
+        <th>Département</th>
+        <th>Salaire</th>
+        <th>Manager</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.full_name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+            <td>{{ u.department or '' }}</td>
+            <td>{{ "%.2f"|format(u.salary) }}</td>
+            <td>{{ u.manager_id or '' }}</td>
+            <td>
+                <details>
+                    <summary>Modifier</summary>
+                    <form method="post" action="/admin/users/update" class="user-form">
+                        <input type="hidden" name="user_id" value="{{ u.id }}">
+                        <input type="text" name="full_name" value="{{ u.full_name }}" required>
+                        <input type="email" name="email" value="{{ u.email }}" required>
+                        <input type="text" name="department" value="{{ u.department or '' }}">
+                        <input type="number" step="0.01" name="salary" value="{{ u.salary }}">
+                        <select name="role">
+                            <option value="employee" {% if u.role=='employee' %}selected{% endif %}>Employé</option>
+                            <option value="manager" {% if u.role=='manager' %}selected{% endif %}>Manager</option>
+                            <option value="admin" {% if u.role=='admin' %}selected{% endif %}>Admin</option>
+                        </select>
+                        <input type="number" name="manager_id" value="{{ u.manager_id or '' }}">
+                        <input type="password" name="password" placeholder="Nouveau mot de passe (optionnel)">
+                        <button type="submit">Enregistrer</button>
+                    </form>
+                    {% if user.id != u.id %}
+                    <form method="post" action="/admin/users/delete" onsubmit="return confirm('Supprimer cet utilisateur ?');">
+                        <input type="hidden" name="user_id" value="{{ u.id }}">
+                        <button type="submit" class="danger">Supprimer</button>
+                    </form>
+                    {% endif %}
+                </details>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="8">Aucun utilisateur.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<p><a href="/admin/export_csv">Exporter les employés en CSV</a></p>
+{% endblock %}

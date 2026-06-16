@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Tableau de bord - Employé</h2>
+<div class="dashboard">
+    <div class="card">
+        <h3>Mon profil</h3>
+        <p><strong>Nom :</strong> {{ user.full_name }}</p>
+        <p><strong>Email :</strong> {{ user.email }}</p>
+        <p><strong>Département :</strong> {{ user.department.value }}</p>
+        <p><strong>Salaire :</strong> {{ user.salary }} €</p>
+        <a href="/employee/profile" class="button">Voir le profil complet</a>
+    </div>
+
+    <div class="card">
+        <h3>Mes demandes de congés</h3>
+        {% if leave_requests %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date de début</th>
+                        <th>Date de fin</th>
+                        <th>Raison</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leave_requests %}
+                    <tr>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td>{{ leave.reason }}</td>
+                        <td>{{ leave.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Aucune demande de congé.</p>
+        {% endif %}
+        <a href="/employee/leave-request" class="button">Demander un congé</a>
+    </div>
+</div>
+{% endblock %}

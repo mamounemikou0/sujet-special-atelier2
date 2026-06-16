@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Congés Équipe{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Congés de l'équipe</h1>
+</div>
+
+{% if request.query_params.get('success') %}
+<div class="alert alert-success">Action effectuée avec succès.</div>
+{% endif %}
+
+<div class="card">
+    {% if leaves %}
+    <table class="table">
+        <thead>
+            <tr><th>Employé</th><th>Période</th><th>Durée</th><th>Motif</th><th>Statut</th><th>Commentaire</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for leave in leaves %}
+        <tr>
+            <td>{{ users_map[leave.user_id].full_name if leave.user_id in users_map else '—' }}</td>
+            <td>{{ leave.start_date.strftime('%d/%m/%Y') }} → {{ leave.end_date.strftime('%d/%m/%Y') }}</td>
+            <td>{{ (leave.end_date - leave.start_date).days + 1 }} j</td>
+            <td>{{ leave.reason or '—' }}</td>
+            <td><span class="status-badge status-{{ leave.status.value }}">{{ leave.status.value | capitalize }}</span></td>
+            <td>{{ leave.manager_comment or '—' }}</td>
+            <td>
+                {% if leave.status.value == 'pending' %}
+                <form method="post" action="/manager/leaves/{{ leave.id }}/action" style="display:inline-flex;gap:6px">
+                    <input type="hidden" name="action" value="approve">
+                    <input type="hidden" name="comment" value="">
+                    <button type="submit" class="btn btn-success btn-sm">✓</button>
+                </form>
+                <form method="post" action="/manager/leaves/{{ leave.id }}/action" style="display:inline-flex;gap:6px">
+                    <input type="hidden" name="action" value="refuse">
+                    <input type="hidden" name="comment" value="">
+                    <button type="submit" class="btn btn-danger btn-sm">✗</button>
+                </form>
+                {% else %}
+                <span class="text-muted">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>Aucune demande de congé dans votre équipe.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

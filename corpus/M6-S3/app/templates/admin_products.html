@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Admin - Produits{% endblock %}
+{% block content %}
+<h1>Admin - Produits</h1>
+
+<h2>Ajouter un produit</h2>
+<form method="post" action="/admin/products/add" class="admin-form">
+    <label>Nom
+        <input type="text" name="name" required>
+    </label>
+    <label>Description
+        <textarea name="description" rows="3" required></textarea>
+    </label>
+    <label>Prix
+        <input type="number" step="0.01" name="price" required>
+    </label>
+    <label>Stock
+        <input type="number" name="stock" required>
+    </label>
+    <label>Image URL
+        <input type="text" name="image_url">
+    </label>
+    <label>Catégorie
+        <input type="text" name="category">
+    </label>
+    <button type="submit">Ajouter</button>
+</form>
+
+<h2>Liste des produits</h2>
+<table class="admin-table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Prix</th>
+        <th>Stock</th>
+        <th>Catégorie</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ "%.2f"|format(product.price) }} €</td>
+            <td>{{ product.stock }}</td>
+            <td>{{ product.category }}</td>
+            <td>
+                <form method="post" action="/admin/products/update/{{ product.id }}" class="inline-form">
+                    <input type="text" name="name" value="{{ product.name }}">
+                    <input type="text" name="description" value="{{ product.description }}">
+                    <input type="number" step="0.01" name="price" value="{{ product.price }}">
+                    <input type="number" name="stock" value="{{ product.stock }}">
+                    <input type="text" name="image_url" value="{{ product.image_url }}">
+                    <input type="text" name="category" value="{{ product.category }}">
+                    <button type="submit">Mettre à jour</button>
+                </form>
+                <form method="post" action="/admin/products/delete/{{ product.id }}" class="inline-form">
+                    <button type="submit" onclick="return confirm('Supprimer ce produit ?')">Supprimer</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

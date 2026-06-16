@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Statistiques{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Statistiques</h1>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <span class="stat-number">{{ total_employees }}</span>
+        <span class="stat-label">Employés</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-number">{{ total_managers }}</span>
+        <span class="stat-label">Managers</span>
+    </div>
+    <div class="stat-card stat-card-success">
+        <span class="stat-number">{{ "%.0f"|format(total_salary) }} €</span>
+        <span class="stat-label">Masse salariale/mois</span>
+    </div>
+    <div class="stat-card stat-card-info">
+        <span class="stat-number">{{ active_leaves }}</span>
+        <span class="stat-label">Congés actifs aujourd'hui</span>
+    </div>
+    <div class="stat-card stat-card-warning">
+        <span class="stat-number">{{ pending_leaves }}</span>
+        <span class="stat-label">Congés en attente</span>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <!-- Employés par département -->
+    <div class="card">
+        <h3 class="card-title">Effectifs par département</h3>
+        {% for dept, count in dept_counts.items() %}
+        <div class="dept-bar-row">
+            <span class="dept-bar-label">{{ dept }}</span>
+            <div class="dept-bar-track">
+                <div class="dept-bar-fill" style="width: {{ (count / (dept_counts.values()|sum)) * 100 }}%"></div>
+            </div>
+            <span class="dept-bar-value">{{ count }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Salaires par département -->
+    <div class="card">
+        <h3 class="card-title">Masse salariale par département</h3>
+        {% for dept, sal in dept_salaries.items() %}
+        <div class="dept-bar-row">
+            <span class="dept-bar-label">{{ dept }}</span>
+            <div class="dept-bar-track">
+                <div class="dept-bar-fill dept-bar-fill-green" style="width: {{ (sal / (dept_salaries.values()|sum)) * 100 }}%"></div>
+            </div>
+            <span class="dept-bar-value">{{ "%.0f"|format(sal) }} €</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Congés -->
+    <div class="card">
+        <h3 class="card-title">État des congés</h3>
+        <div class="leave-stats">
+            <div class="leave-stat-row">
+                <span class="status-badge status-pending">En attente</span>
+                <strong>{{ pending_leaves }}</strong>
+            </div>
+            <div class="leave-stat-row">
+                <span class="status-badge status-approved">Approuvés</span>
+                <strong>{{ approved_leaves }}</strong>
+            </div>
+            <div class="leave-stat-row">
+                <span class="status-badge status-refused">Refusés</span>
+                <strong>{{ refused_leaves }}</strong>
+            </div>
+        </div>
+
+        <!-- Donut chart via SVG -->
+        {% set total_l = pending_leaves + approved_leaves + refused_leaves %}
+        {% if total_l > 0 %}
+        <div class="donut-container">
+            <svg viewBox="0 0 100 100" width="140" height="140">
+                {% set r = 35 %}
+                {% set cx = 50 %}
+                {% set cy = 50 %}
+                {% set circ = 2 * 3.14159 * r %}
+                {% set pct_approved = (approved_leaves / total_l) * circ %}
+                {% set pct_pending = (pending_leaves / total_l) * circ %}
+                {% set pct_refused = (refused_leaves / total_l) * circ %}
+                <!-- Background -->
+                <circle cx="{{ cx }}" cy="{{ cy }}" r="{{ r }}" fill="none" stroke="#e5e7eb" stroke-width="12"/>
+                <!-- Approved (green) -->
+                <circle cx="{{ cx }}" cy="{{ cy }}" r="{{ r }}" fill="none" stroke="#22c55e" stroke-width="12"
+                    stroke-dasharray="{{ pct_approved }} {{ circ }}"
+                    stroke-dashoffset="{{ circ * 0.25 }}"
+                    transform="rotate(-90 {{ cx }} {{ cy }})"/>
+                <!-- Pending (orange) -->
+                <circle cx="{{ cx }}" cy="{{ cy }}" r="{{ r }}" fill="none" stroke="#f59e0b" stroke-width="12"
+                    stroke-dasharray="{{ pct_pending }} {{ circ }}"
+                    stroke-dashoffset="{{ circ * 0.25 - pct_approved }}"
+                    transform="rotate(-90 {{ cx }} {{ cy }})"/>
+                <!-- Refused (red) -->
+                <circle cx="{{ cx }}" cy="{{ cy }}" r="{{ r }}" fill="none" stroke="#ef4444" stroke-width="12"
+                    stroke-dasharray="{{ pct_refused }} {{ circ }}"
+                    stroke-dashoffset="{{ circ * 0.25 - pct_approved - pct_pending }}"
+                    transform="rotate(-90 {{ cx }} {{ cy }})"/>
+                <text x="{{ cx }}" y="{{ cy }}" text-anchor="middle" dy="0.3em" font-size="14" font-weight="bold" fill="var(--text-primary)">{{ total_l }}</text>
+            </svg>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Salaire annuel total -->
+    <div class="card">
+        <h3 class="card-title">Récapitulatif financier</h3>
+        <div class="finance-grid">
+            <div class="finance-item">
+                <span>Masse salariale mensuelle</span>
+                <strong>{{ "%.2f"|format(total_salary) }} €</strong>
+            </div>
+            <div class="finance-item">
+                <span>Masse salariale annuelle</span>
+                <strong>{{ "%.2f"|format(total_salary * 12) }} €</strong>
+            </div>
+            <div class="finance-item">
+                <span>Salaire moyen mensuel</span>
+                <strong>{{ "%.2f"|format(total_salary / (total_employees + total_managers + 1)) }} €</strong>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

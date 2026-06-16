@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Approbation des congés</h2>
+{% if leave_requests %}
+    <table>
+        <thead>
+            <tr>
+                <th>Employé</th>
+                <th>Date de début</th>
+                <th>Date de fin</th>
+                <th>Raison</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for leave in leave_requests %}
+            <tr>
+                <td>{{ leave.user.full_name }}</td>
+                <td>{{ leave.start_date }}</td>
+                <td>{{ leave.end_date }}</td>
+                <td>{{ leave.reason }}</td>
+                <td>
+                    <form action="/manager/approve-leave/{{ leave.id }}" method="post" style="display: inline;">
+                        <button type="submit" class="button approve">Approuver</button>
+                    </form>
+                    <form action="/manager/reject-leave/{{ leave.id }}" method="post" style="display: inline;">
+                        <button type="submit" class="button reject">Refuser</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Aucune demande de congé en attente.</p>
+{% endif %}
+{% endblock %}

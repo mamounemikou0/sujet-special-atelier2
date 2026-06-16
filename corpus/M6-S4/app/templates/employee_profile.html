@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Mon profil{% endblock %}
+{% block content %}
+<h2>Mon profil</h2>
+
+<div class="profile-container">
+    <div class="profile-left">
+        <div class="profile-photo">
+            {% if user.photo_filename %}
+                <img src="/static/uploads/{{ user.photo_filename }}" alt="Photo de profil">
+            {% else %}
+                <div class="placeholder-photo">Aucune photo</div>
+            {% endif %}
+        </div>
+        <form action="/profile/photo" method="post" enctype="multipart/form-data">
+            <label>Changer la photo de profil</label>
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Uploader</button>
+        </form>
+    </div>
+    <div class="profile-right">
+        <p><strong>Nom :</strong> {{ user.full_name }}</p>
+        <p><strong>Email :</strong> {{ user.email }}</p>
+        <p><strong>Département :</strong> {{ user.department or '-' }}</p>
+        <p><strong>Salaire :</strong> {{ "%.2f"|format(user.salary) }} €</p>
+        {% if user.manager %}
+            <p><strong>Manager :</strong> {{ user.manager.full_name }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<h3>Mes demandes de congés</h3>
+<form method="post" action="/employee/leave/request" class="leave-form">
+    <div>
+        <label>Début</label>
+        <input type="date" name="start_date" required>
+    </div>
+    <div>
+        <label>Fin</label>
+        <input type="date" name="end_date" required>
+    </div>
+    <div>
+        <label>Raison</label>
+        <input type="text" name="reason">
+    </div>
+    <button type="submit">Demander un congé</button>
+</form>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Début</th>
+        <th>Fin</th>
+        <th>Raison</th>
+        <th>Statut</th>
+        <th>Créé le</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for leave in leaves %}
+        <tr>
+            <td>{{ leave.id }}</td>
+            <td>{{ leave.start_date }}</td>
+            <td>{{ leave.end_date }}</td>
+            <td>{{ leave.reason }}</td>
+            <td>{{ leave.status }}</td>
+            <td>{{ leave.created_at }}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="6">Aucune demande de congé.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

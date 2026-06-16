@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — UserHub{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">⬡</span>
+      <span>UserHub</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="nav-item active">
+        <span class="nav-icon">◈</span> Utilisateurs
+      </a>
+      <a href="/profile" class="nav-item">
+        <span class="nav-icon">◉</span> Mon Profil
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+      <div class="user-info">
+        <strong>{{ current_user.username }}</strong>
+        {% if current_user.is_admin %}<span class="badge-admin">Admin</span>{% endif %}
+      </div>
+      <a href="/logout" class="btn-logout" title="Déconnexion">⏻</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1>Utilisateurs</h1>
+        <p class="page-subtitle">{{ users|length }} compte{{ 's' if users|length > 1 else '' }} enregistré{{ 's' if users|length > 1 else '' }}</p>
+      </div>
+    </div>
+
+    <div class="users-grid">
+      {% for user in users %}
+      <div class="user-card {% if user.is_admin %}user-card--admin{% endif %}">
+        <div class="user-card-avatar">{{ user.username[0].upper() }}</div>
+        <div class="user-card-info">
+          <div class="user-card-name">
+            {{ user.username }}
+            {% if user.is_admin %}<span class="badge-admin">Admin</span>{% endif %}
+            {% if user.id == current_user.id %}<span class="badge-you">Vous</span>{% endif %}
+          </div>
+          <div class="user-card-email">{{ user.email }}</div>
+          <div class="user-card-date">Membre depuis {{ user.created_at.strftime('%d/%m/%Y') }}</div>
+        </div>
+        <div class="user-card-actions">
+          {% if current_user.is_admin or user.id == current_user.id %}
+          <a href="/profile/{{ user.id }}" class="btn-sm btn-outline">Voir</a>
+          {% endif %}
+          {% if current_user.is_admin and not user.is_admin %}
+          <form method="post" action="/delete/{{ user.id }}" onsubmit="return confirmDelete('{{ user.username }}')">
+            <button type="submit" class="btn-sm btn-danger">Supprimer</button>
+          </form>
+          {% elif user.id == current_user.id and not current_user.is_admin %}
+          <form method="post" action="/delete/{{ user.id }}" onsubmit="return confirmDelete('votre compte')">
+            <button type="submit" class="btn-sm btn-danger">Supprimer</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+</div>
+{% endblock %}

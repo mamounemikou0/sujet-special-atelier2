@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block title %}Dashboard ({{ user.role }}){% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-fit">
+        <h3 class="text-base font-bold text-gray-800 border-b pb-3 mb-4">Fiche Collaborateur</h3>
+        <div class="flex flex-col items-center mb-6">
+            <img src="/static/uploads/{{ user.profile_pic }}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'" class="w-24 h-24 rounded-full border-4 border-indigo-50 object-cover mb-3 shadow-inner">
+            <h4 class="text-lg font-bold text-gray-800">{{ user.name }}</h4>
+            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded font-medium">{{ user.department }}</span>
+        </div>
+        
+        <form action="/profile/upload" method="POST" enctype="multipart/form-data" class="space-y-2 bg-gray-50 p-3 rounded-lg border border-dashed">
+            <label class="block text-xs font-semibold text-gray-600">Mettre à jour l'avatar</label>
+            <input type="file" name="file" required class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"/>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1.5 rounded transition shadow-sm">Uploader</button>
+        </form>
+
+        <div class="mt-6 space-y-2.5 text-xs text-gray-700 border-t pt-4">
+            <div class="flex justify-between"><strong>Email professionnel :</strong> <span class="text-gray-600">{{ user.email }}</span></div>
+            <div class="flex justify-between"><strong>Rémunération de base :</strong> <span class="font-mono text-gray-900 font-semibold">{{ "{:,.2f}".format(user.salary) }} €</span></div>
+        </div>
+    </div>
+
+    <div class="lg:col-span-2 space-y-8">
+
+        {% if user.role == 'Employé' or user.role == 'Manager' %}
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-base font-bold text-gray-800 border-b pb-3 mb-4">Nouvelle demande de congé</h3>
+            <form action="/leave/request" method="POST" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Date de début</label>
+                    <input type="date" name="start_date" required class="w-full border rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Date de fin</label>
+                    <input type="date" name="end_date" required class="w-full border rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Motif de l'absence</label>
+                    <input type="text" name="reason" placeholder="Ex: Congés annuels, impératif familial..." required class="w-full border rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button type="submit" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition shadow-sm">Déposer la demande</button>
+            </form>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-base font-bold text-gray-800 border-b pb-3 mb-4">Suivi de mes absences</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-gray-50 border-b text-gray-500 uppercase tracking-wider">
+                            <th class="p-3 font-semibold">Du</th>
+                            <th class="p-3 font-semibold">Au</th>
+                            <th class="p-3 font-semibold">Raison</th>
+                            <th class="p-3 font-semibold">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leaves %}
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-3 font-medium">{{ leave.start_date }}</td>
+                            <td class="p-3 font-medium">{{ leave.end_date }}</td>
+                            <td class="p-3 text-gray-600">{{ leave.reason }}</td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide
+                                    {% if leave.status == 'Approuvé' %}bg-green-100 text-green-800
+                                    {% elif leave.status == 'Refusé' %}bg-red-100 text-red-800
+                                    {% else %}bg-amber-100 text-amber-800{% endif %}">
+                                    {{ leave.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="p-4 text-center text-gray-400">Aucun historique disponible.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if user.role == 'Manager' %}
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-base font-bold text-gray-800 border-b pb-3 mb-4">Salaires & Membres de mon équipe</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-gray-50 border-b text-gray-500 uppercase">
+                            <th class="p-3 font-semibold">Collaborateur</th>
+                            <th class="p-3 font-semibold">Département</th>
+                            <th class="p-3 font-semibold text-right">Salaire Mensuel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in team %}
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-3 font-bold text-gray-800">{{ member.name }}</td>
+                            <td class="p-3 text-gray-600">{{ member.department }}</td>
+                            <td class="p-3 font-mono text-right font-semibold text-gray-900">{{ "{:,.2f}".format(member.salary) }} €</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" class="p-4 text-center text-gray-400">Aucun subordonné direct trouvé.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-base font-bold text-gray-800 border-b pb-3 mb-4">Demandes de congés de l'équipe à traiter</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-gray-50 border-b text-gray-500 uppercase">
+                            <th class="p-3 font-semibold">Salarié</th>
+                            <th class="p-3 font-semibold">Période</th>
+                            <th class="p-3 font-semibold">Motif</th>
+                            <th class="p-3 font-semibold">Statut</th>
+                            <th class="p-3 font-semibold text-center">Décision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in team_leaves %}
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-3 font-bold">{{ leave.user.name }}</td>
+                            <td class="p-3 text-gray-600">{{ leave.start_date }} au {{ leave.end_date }}</td>
+                            <td class="p-3 text-gray-500">{{ leave.reason }}</td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 rounded font-bold text-[10px] {% if leave.status == 'Approuvé' %}bg-green-100 text-green-700{% elif leave.status == 'Refusé' %}bg-red-100 text-red-700{% else %}bg-amber-100 text-amber-700{% endif %}">{{ leave.status }}</span>
+                            </td>
+                            <td class="p-3 text-center">
+                                {% if leave.status == 'En attente' %}
+                                <div class="flex justify-center space-x-2">
+                                    <form action="/leave/action/{{ leave.id }}" method="POST">
+                                        <input type="hidden" name="action" value="approve">
+                                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-[11px] font-bold transition shadow-sm">Valider</button>
+                                    </form>
+                                    <form action="/leave/action/{{ leave.id }}" method="POST">
+                                        <input type="hidden" name="action" value="reject">
+                                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-[11px] font-bold transition shadow-sm">Refuser</button>
+                                    </form>
+                                </div>
+                                {% else %}-{% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="p-4 text-center text-gray-400">Aucune demande en attente.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if user.role == 'Admin' %}
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center border-b pb-3 mb-5">
+                <h3 class="text-base font-bold text-gray-800">Console d'administration globale</h3>
+                <a href="/admin/export/csv" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold px-3 py-2 rounded-lg transition shadow-sm">Exporter la liste (CSV)</a>
+            </div>
+
+            <form action="/admin/user/create" method="POST" class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="sm:col-span-2 md:col-span-3 text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Enregistrer un nouveau collaborateur</div>
+                <input type="text" name="name" placeholder="Nom Complet" required class="border rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 outline-none">
+                <input type="email" name="email" placeholder="Email" required class="border rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 outline-none">
+                <input type="password" name="password" placeholder="Mot de passe" required class="border rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 outline-none">
+                <select name="role" required class="border rounded-lg px-2 py-1.5 text-xs bg-white focus:ring-1 focus:ring-indigo-500 outline-none">
+                    <option value="Employé">Employé</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Admin">Admin</option>
+                </select>
+                <input type="text" name="department" placeholder="Département" required class="border rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 outline-none">
+                <input type="number" step="0.01" name="salary" placeholder="Salaire Annuel / Mensuel (€)" required class="border rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-indigo-500 outline-none">
+                <select name="manager_id" class="border rounded-lg px-2 py-1.5 text-xs bg-white sm:col-span-2 md:col-span-1 focus:ring-1 focus:ring-indigo-500 outline-none">
+                    <option value="">Aucun manager de tutelle</option>
+                    {% for m in managers %}
+                    <option value="{{ m.id }}">{{ m.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="sm:col-span-2 md:col-span-2 bg-indigo-600 text-white text-xs font-bold rounded-lg py-1.5 hover:bg-indigo-700 transition shadow-sm">Créer la fiche</button>
+            </form>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-[11px]">
+                    <thead>
+                        <tr class="bg-gray-50 border-b text-gray-500 uppercase tracking-wider">
+                            <th class="p-2 font-semibold">Identité & Login</th>
+                            <th class="p-2 font-semibold">Droits & Dép.</th>
+                            <th class="p-2 font-semibold">Salaire (€)</th>
+                            <th class="p-2 font-semibold text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in all_users %}
+                        <tr class="border-b hover:bg-gray-50 align-middle">
+                            <form action="/admin/user/update/{{ u.id }}" method="POST">
+                                <td class="p-2 space-y-1">
+                                    <input type="text" name="name" value="{{ u.name }}" required class="border rounded p-1 w-full font-bold text-gray-800">
+                                    <input type="email" name="email" value="{{ u.email }}" required class="border rounded p-1 w-full text-gray-500 font-mono text-[10px]">
+                                </td>
+                                <td class="p-2 space-y-1">
+                                    <select name="role" class="border rounded p-1 w-full bg-white font-medium">
+                                        <option value="Employé" {% if u.role == 'Employé' %}selected{% endif %}>Employé</option>
+                                        <option value="Manager" {% if u.role == 'Manager' %}selected{% endif %}>Manager</option>
+                                        <option value="Admin" {% if u.role == 'Admin' %}selected{% endif %}>Admin</option>
+                                    </select>
+                                    <input type="text" name="department" value="{{ u.department }}" required class="border rounded p-1 w-full text-gray-600">
+                                </td>
+                                <td class="p-2">
+                                    <input type="number" step="0.01" name="salary" value="{{ u.salary }}" required class="border rounded p-1 w-20 font-mono font-semibold text-right">
+                                    <input type="hidden" name="manager_id" value="{{ u.manager_id or '' }}">
+                                </td>
+                                <td class="p-2 text-center">
+                                    <div class="flex items-center justify-center space-x-1">
+                                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-1 px-2 rounded text-[10px] uppercase shadow-sm">Maj</button>
+                                    </form>
+                                        {% if u.id != user.id %}
+                                        <form action="/admin/user/delete/{{ u.id }}" method="POST" onsubmit="return confirm('Confirmer la suppression irréversible ?');">
+                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold p-1 px-2 rounded text-[10px] shadow-sm">X</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

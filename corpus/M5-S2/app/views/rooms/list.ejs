@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salles disponibles</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="container">
+        <h1>Salles disponibles</h1>
+        
+        <div class="rooms-grid">
+            <% rooms.forEach(room => { %>
+            <div class="room-card">
+                <% if (room.photo_url) { %>
+                <img src="<%= room.photo_url %>" alt="<%= room.name %>" class="room-image">
+                <% } %>
+                <div class="room-info">
+                    <h2><%= room.name %></h2>
+                    <p class="capacity">👥 Capacité : <%= room.capacity %> personnes</p>
+                    <p class="equipment">🛠️ Équipements : <%= room.equipment %></p>
+                    <a href="/rooms/<%= room.id %>" class="btn btn-primary">Voir le calendrier</a>
+                    <a href="/bookings/create/<%= room.id %>" class="btn btn-secondary">Réserver</a>
+                </div>
+            </div>
+            <% }) %>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

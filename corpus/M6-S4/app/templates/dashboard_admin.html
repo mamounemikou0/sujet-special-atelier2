@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
+<h1>Bienvenue, {{ user.full_name }}</h1>
+<p>Rôle : Admin</p>
+<ul>
+    <li><a href="/employee/profile">Mon profil</a></li>
+    <li><a href="/admin/users">Gestion des utilisateurs</a></li>
+    <li><a href="/admin/stats">Statistiques</a></li>
+    <li><a href="/admin/export_csv">Exporter les employés en CSV</a></li>
+</ul>
+{% endblock %}

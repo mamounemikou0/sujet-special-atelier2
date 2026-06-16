@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Modifier l'utilisateur : {{ edited_user.full_name }}</h2>
+<form action="/admin/edit-user/{{ edited_user.id }}" method="post">
+    <div class="form-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" name="email" value="{{ edited_user.email }}" required>
+    </div>
+    <div class="form-group">
+        <label for="full_name">Nom complet :</label>
+        <input type="text" id="full_name" name="full_name" value="{{ edited_user.full_name }}" required>
+    </div>
+    <div class="form-group">
+        <label for="role">Rôle :</label>
+        <select id="role" name="role" required>
+            {% for role in roles %}
+                <option value="{{ role }}" {% if edited_user.role.value == role %}selected{% endif %}>{{ role }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="department">Département :</label>
+        <select id="department" name="department" required>
+            {% for dept in departments %}
+                <option value="{{ dept }}" {% if edited_user.department.value == dept %}selected{% endif %}>{{ dept }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="salary">Salaire :</label>
+        <input type="number" id="salary" name="salary" step="0.01" value="{{ edited_user.salary }}" required>
+    </div>
+    <div class="form-group">
+        <label for="manager_id">Manager :</label>
+        <select id="manager_id" name="manager_id">
+            <option value="">Aucun</option>
+            {% for manager in managers %}
+                <option value="{{ manager.id }}" {% if edited_user.manager_id == manager.id %}selected{% endif %}>{{ manager.full_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit">Enregistrer</button>
+</form>
+{% endblock %}

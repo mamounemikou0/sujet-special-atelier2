@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Accueil - Authentification</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue</h1>
+        <div id="messageBox" class="hidden"></div>
+        
+        <div class="forms-container">
+            <div class="form-box">
+                <h2>Connexion</h2>
+                <form id="loginForm">
+                    <input type="text" id="loginUsername" placeholder="Nom d'utilisateur" required>
+                    <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+                    <button type="submit">Se connecter</button>
+                </form>
+            </div>
+
+            <div class="form-box">
+                <h2>Inscription</h2>
+                <form id="registerForm">
+                    <input type="text" id="regUsername" placeholder="Nom d'utilisateur" required>
+                    <input type="email" id="regEmail" placeholder="Email" required>
+                    <input type="password" id="regPassword" placeholder="Mot de passe" required>
+                    <button type="submit">S'inscrire</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+    <script>
+        // Si déjà connecté, rediriger vers le dashboard
+        if (localStorage.getItem("token")) {
+            window.location.href = "/dashboard";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <h2>Connexion</h2>
+        <% if (error) { %> <div class="alert"><%= error %></div> <% } %>
+        <form action="/auth/login" method="POST" class="auth-form">
+            <div class="form-group">
+                <label>Email entreprise</label>
+                <input type="email" name="email" required placeholder="nom@entreprise.com">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" name="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn">Se connecter</button>
+        </form>
+        <p class="auth-switch">Nouveau ici ? <a href="/auth/register">Créer un compte</a></p>
+    </div>
+</body>
+</html>

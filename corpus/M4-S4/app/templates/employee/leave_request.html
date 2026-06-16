@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Demander un congé</h2>
+<form action="/employee/leave-request" method="post">
+    <div class="form-group">
+        <label for="start_date">Date de début :</label>
+        <input type="date" id="start_date" name="start_date" required>
+    </div>
+    <div class="form-group">
+        <label for="end_date">Date de fin :</label>
+        <input type="date" id="end_date" name="end_date" required>
+    </div>
+    <div class="form-group">
+        <label for="reason">Raison :</label>
+        <textarea id="reason" name="reason" required></textarea>
+    </div>
+    <button type="submit">Envoyer la demande</button>
+</form>
+{% endblock %}

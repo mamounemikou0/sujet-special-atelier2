@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier la réservation</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">🏠 Accueil</a>
+            <span class="user-info">Profil : <strong><%= user.email %></strong></span>
+            <a href="/auth/logout" class="btn btn-small logout-btn">Déconnexion</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2>Modifier votre réservation - <%= booking.room_name %></h2>
+        <form action="/bookings/edit/<%= booking.id %>" method="POST" class="auth-form" style="max-width: 400px; background: white; padding: 2rem; border: 1px solid var(--border);">
+            <div class="form-group">
+                <label>Nouvelle Date</label>
+                <input type="date" name="date" value="<%= booking.date %>" required>
+            </div>
+            <div class="form-group">
+                <label>Nouvel Horaire</label>
+                <select name="start_hour" required>
+                    <% for(let h=8; h<=17; h++) { %>
+                        <option value="<%= h %>" <%= booking.start_hour === h ? 'selected' : '' %>><%= h %>h00 - <%= h+1 %>h00</option>
+                    <% } %>
+                </select>
+            </div>
+            <button type="submit" class="btn">Mettre à jour</button>
+            <a href="/rooms/<%= booking.room_id %>" class="btn btn-secondary" style="text-align: center;">Annuler</a>
+        </form>
+    </main>
+</body>
+</html>

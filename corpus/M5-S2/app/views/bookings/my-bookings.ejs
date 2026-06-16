@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes réservations</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header') %>
+    
+    <main class="container">
+        <h1>Mes réservations</h1>
+        
+        <% if (bookings.length === 0) { %>
+        <div class="no-data">
+            <p>Vous n'avez aucune réservation</p>
+            <a href="/rooms" class="btn btn-primary">Réserver une salle</a>
+        </div>
+        <% } else { %>
+        <div class="bookings-table-container">
+            <table class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>Salle</th>
+                        <th>Date</th>
+                        <th>Horaire</th>
+                        <th>Titre</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% bookings.forEach(booking => { %>
+                    <tr class="<%= booking.status === 'cancelled' ? 'cancelled' : '' %>">
+                        <td><%= booking.room_name %></td>
+                        <td><%= booking.date %></td>
+                        <td><%= booking.start_time %> - <%= booking.end_time %></td>
+                        <td><%= booking.title %></td>
+                        <td>
+                            <span class="badge badge-<%= booking.status %>">
+                                <%= booking.status === 'confirmed' ? 'Confirmée' : 'Annulée' %>
+                            </span>
+                        </td>
+                        <td class="actions">
+                            <% if (booking.status === 'confirmed') { %>
+                            <a href="/bookings/edit/<%= booking.id %>" class="btn btn-sm">Modifier</a>
+                            <form action="/bookings/cancel/<%= booking.id %>" method="POST" style="display:inline">
+                                <button type="submit" class="btn btn-sm btn-danger" 
+                                        onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')">
+                                    Annuler
+                                </button>
+                            </form>
+                            <% } %>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

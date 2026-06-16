@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Gestion des utilisateurs</h2>
+<a href="/admin/create-user" class="button">Créer un utilisateur</a>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Département</th>
+            <th>Salaire</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.full_name }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role.value }}</td>
+            <td>{{ u.department.value }}</td>
+            <td>{{ u.salary }} €</td>
+            <td>
+                <a href="/admin/edit-user/{{ u.id }}" class="button">Modifier</a>
+                <form action="/admin/delete-user/{{ u.id }}" method="post" style="display: inline;">
+                    <button type="submit" class="button delete">Supprimer</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="/admin/export-users" class="button">Exporter en CSV</a>
+{% endblock %}

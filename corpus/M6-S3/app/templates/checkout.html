@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Commande{% endblock %}
+{% block content %}
+<h1>Passage de commande</h1>
+{% if error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+{% if cart_items %}
+<table class="cart-table">
+    <thead>
+    <tr>
+        <th>Produit</th>
+        <th>Quantité</th>
+        <th>Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in cart_items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ "%.2f"|format(item.line_total) }} €</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<p class="cart-total">Total : {{ "%.2f"|format(total) }} €</p>
+
+<form method="post" action="/checkout" class="checkout-form">
+    <label>Numéro de carte (simulation)
+        <input type="text" name="credit_card" maxlength="16" minlength="16" required>
+    </label>
+    <label>Adresse de livraison
+        <textarea name="address" rows="3">{{ user.address }}</textarea>
+    </label>
+    <button type="submit" class="btn-primary">Valider la commande</button>
+</form>
+{% else %}
+<p>Votre panier est vide.</p>
+{% endif %}
+{% endblock %}

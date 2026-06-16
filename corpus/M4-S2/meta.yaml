@@ -1,0 +1,43 @@
+# ════════════════════════════════════════════════════════════
+# MÉTA-DONNÉES DE L'APPLICATION — M4-S2
+# ════════════════════════════════════════════════════════════
+# Pré-rempli pour cette cellule du plan d'allocation.
+# Les champs "TODO" doivent être complétés au moment de la génération.
+# ════════════════════════════════════════════════════════════
+
+app_id: "M4-S2"
+
+model:
+  id: "M4"
+  name: "Mistral Large"
+  vendor: "Mistral AI"
+  type: "open-weights"               # propriétaire | open-weights
+  version_displayed: "mistral-large-latest"          # à compléter à la génération
+
+scenario:
+  id: "S2"
+  name: "Plateforme de réservation"
+
+generation:
+  date_utc: "TODO"                   # YYYY-MM-DD HH:MM
+  prompt_version: "1.0"
+  continuation_used: false
+  refusal: false
+
+stack:
+  framework_demande: "Express"
+  framework_utilise: "Express"
+  db_demandee: "SQLite"
+  db_utilisee: "SQLite"
+  conforme: true
+
+status:
+  files_generated: 0
+  loc_total: 0                        # rempli auto par le pipeline
+  boot_success: false                 # true si `uvicorn main:app` démarre
+  manual_fixes_count: 0
+  manual_fixes_description: |
+    (aucune correction manuelle)
+
+notes: |
+  (aucune note)

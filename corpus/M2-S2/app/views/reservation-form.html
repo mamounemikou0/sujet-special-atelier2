@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Réservation – RoomBook</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav id="nav"></nav>
+  <main class="page">
+    <div class="container">
+      <div style="margin-bottom:1rem">
+        <a href="#" id="backLink" class="btn btn-outline btn-sm">← Retour</a>
+      </div>
+      <div class="form-card">
+        <div class="card">
+          <div class="card-body">
+            <h1 class="page-title" id="formTitle" style="margin-bottom:1.5rem;font-size:1.4rem">Nouvelle réservation</h1>
+
+            <div id="alertBox" class="hidden"></div>
+
+            <form method="POST" id="resaForm">
+              <div class="form-group">
+                <label class="form-label">Salle</label>
+                <select name="room_id" id="roomSelect" class="form-control" required>
+                  <option value="">Chargement…</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" id="dateInput" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Heure de début</label>
+                <select name="hour" id="hourSelect" class="form-control" required>
+                  <option value="8">08h00 – 09h00</option>
+                  <option value="9">09h00 – 10h00</option>
+                  <option value="10">10h00 – 11h00</option>
+                  <option value="11">11h00 – 12h00</option>
+                  <option value="12">12h00 – 13h00</option>
+                  <option value="13">13h00 – 14h00</option>
+                  <option value="14">14h00 – 15h00</option>
+                  <option value="15">15h00 – 16h00</option>
+                  <option value="16">16h00 – 17h00</option>
+                  <option value="17">17h00 – 18h00</option>
+                  <option value="18">18h00 – 19h00</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Objet / titre de la réunion</label>
+                <input type="text" name="title" id="titleInput" class="form-control" placeholder="Ex: Réunion sprint planning" maxlength="100">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="submitBtn">Confirmer la réservation</button>
+                <a href="#" id="cancelLink" class="btn btn-outline">Annuler</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/layout.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const resaId = location.pathname.match(/\/reservations\/(\d+)\/edit/)?.[1];
+    const isEdit = !!resaId;
+
+    (async () => {
+      const session = await initLayout();
+      if (!session) return;
+
+      // Set back link
+      document.getElementById('backLink').href = document.referrer || '/reservations';
+      document.getElementById('cancelLink').href = '/reservations';
+
+      // Load rooms
+      const roomsRes = await fetch('/api/rooms');
+      const rooms = await roomsRes.json();
+      const roomSelect = document.getElementById('roomSelect');
+      roomSelect.innerHTML = rooms.map(r => `<option value="${r.id}">${escHtml(r.name)} (${r.capacity} pers.)</option>`).join('');
+
+      const form = document.getElementById('resaForm');
+      const today = new Date().toISOString().slice(0,10);
+      document.getElementById('dateInput').min = today;
+
+      if (isEdit) {
+        document.getElementById('formTitle').textContent = 'Modifier la réservation';
+        document.getElementById('submitBtn').textContent = 'Enregistrer les modifications';
+        form.action = `/reservations/${resaId}/edit`;
+
+        const resaRes = await fetch(`/api/reservations/${resaId}`);
+        if (!resaRes.ok) { location.href = '/reservations'; return; }
+        const resa = await resaRes.json();
+
+        roomSelect.value = resa.room_id;
+        document.getElementById('dateInput').value = resa.date;
+        document.getElementById('hourSelect').value = resa.hour;
+        document.getElementById('titleInput').value = resa.title;
+      } else {
+        form.action = '/reservations/new';
+        if (params.get('room_id')) roomSelect.value = params.get('room_id');
+        if (params.get('date')) document.getElementById('dateInput').value = params.get('date');
+        if (params.get('hour')) document.getElementById('hourSelect').value = params.get('hour');
+      }
+
+      // Error handling
+      const errors = {
+        'missing': 'Veuillez remplir tous les champs obligatoires.',
+        'conflict': 'Ce créneau est déjà réservé. Choisissez un autre horaire.',
+        'date': 'La date ou l\'heure choisie est dans le passé.'
+      };
+      const errCode = params.get('error');
+      if (errCode && errors[errCode]) {
+        const box = document.getElementById('alertBox');
+        box.className = 'alert alert-danger';
+        box.textContent = '✗ ' + errors[errCode];
+      }
+    })();
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

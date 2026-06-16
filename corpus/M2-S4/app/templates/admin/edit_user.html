@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Modifier {{ target.full_name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Modifier l'utilisateur</h1>
+    <a href="/admin/users" class="btn btn-outline">← Retour</a>
+</div>
+
+{% if request.query_params.get('success') == 'photo' %}
+<div class="alert alert-success">Photo mise à jour.</div>
+{% elif request.query_params.get('error') == 'email' %}
+<div class="alert alert-error">Cet email est déjà utilisé.</div>
+{% elif request.query_params.get('error') == 'format' %}
+<div class="alert alert-error">Format de fichier non supporté.</div>
+{% endif %}
+
+<div class="edit-grid">
+    <!-- Photo -->
+    <div class="card">
+        <h3 class="card-title">Photo de profil</h3>
+        <div class="profile-avatar-section">
+            {% if target.profile_picture %}
+                <img src="/static/uploads/{{ target.profile_picture }}" alt="Photo" class="profile-avatar">
+            {% else %}
+                <div class="profile-avatar profile-avatar-placeholder">{{ target.full_name[0] }}</div>
+            {% endif %}
+            <form method="post" action="/admin/users/{{ target.id }}/upload-photo" enctype="multipart/form-data">
+                <label class="btn btn-outline btn-sm" for="photo-file">Choisir une photo</label>
+                <input type="file" id="photo-file" name="photo" accept="image/*" style="display:none" onchange="this.form.submit()">
+            </form>
+        </div>
+    </div>
+
+    <!-- Formulaire édition -->
+    <div class="card" style="grid-column: span 2">
+        <h3 class="card-title">Informations</h3>
+        <form method="post" action="/admin/users/{{ target.id }}/edit">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nom complet *</label>
+                    <input type="text" name="full_name" value="{{ target.full_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" name="email" value="{{ target.email }}" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Rôle *</label>
+                    <select name="role">
+                        <option value="employee" {% if target.role.value == 'employee' %}selected{% endif %}>Employé</option>
+                        <option value="manager" {% if target.role.value == 'manager' %}selected{% endif %}>Manager</option>
+                        <option value="admin" {% if target.role.value == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Département</label>
+                    <input type="text" name="department" value="{{ target.department or '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Poste</label>
+                    <input type="text" name="position" value="{{ target.position or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Salaire (€/mois)</label>
+                    <input type="number" name="salary" min="0" step="0.01" value="{{ target.salary }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="text" name="phone" value="{{ target.phone or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Date d'embauche</label>
+                    <input type="date" name="hire_date" value="{{ target.hire_date.isoformat() if target.hire_date else '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Manager</label>
+                    <select name="manager_id">
+                        <option value="">— Aucun —</option>
+                        {% for m in managers %}
+                        <option value="{{ m.id }}" {% if target.manager_id == m.id %}selected{% endif %}>{{ m.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nouveau mot de passe <small>(laisser vide = inchangé)</small></label>
+                    <input type="password" name="new_password" placeholder="••••••••">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

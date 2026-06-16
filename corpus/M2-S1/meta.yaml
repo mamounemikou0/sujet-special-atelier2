@@ -1,0 +1,43 @@
+# ════════════════════════════════════════════════════════════
+# MÉTA-DONNÉES DE L'APPLICATION — M2-S1
+# ════════════════════════════════════════════════════════════
+# Pré-rempli pour cette cellule du plan d'allocation.
+# Les champs "TODO" doivent être complétés au moment de la génération.
+# ════════════════════════════════════════════════════════════
+
+app_id: "M2-S1"
+
+model:
+  id: "M2"
+  name: "Claude Sonnet 4.6"
+  vendor: "Anthropic"
+  type: "propriétaire"               # propriétaire | open-weights
+  version_displayed: "claude-sonnet-4-6"          # à compléter à la génération
+
+scenario:
+  id: "S1"
+  name: "Gestion d'utilisateurs"
+
+generation:
+  date_utc: "TODO"                   # YYYY-MM-DD HH:MM
+  prompt_version: "1.0"
+  continuation_used: false
+  refusal: false
+
+stack:
+  framework_demande: "FastAPI"
+  framework_utilise: "FastAPI"
+  db_demandee: "SQLite"
+  db_utilisee: "SQLite"
+  conforme: true
+
+status:
+  files_generated: 0
+  loc_total: 0                        # rempli auto par le pipeline
+  boot_success: true                 # true si `uvicorn main:app` démarre
+  manual_fixes_count: 0
+  manual_fixes_description: |
+    (aucune correction manuelle)
+
+notes: |
+  (aucune note)

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Admin - Commandes{% endblock %}
+{% block content %}
+<h1>Admin - Commandes</h1>
+{% if orders %}
+<table class="admin-table">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Client</th>
+        <th>Statut</th>
+        <th>Total</th>
+        <th>Adresse</th>
+        <th>Articles</th>
+        <th>Changer statut</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.user.email }}</td>
+            <td>{{ order.status.value }}</td>
+            <td>{{ "%.2f"|format(order.total_amount) }} €</td>
+            <td>{{ order.shipping_address }}</td>
+            <td>
+                <ul>
+                    {% for item in order.items %}
+                        <li>{{ item.product.name }} x {{ item.quantity }}</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <form method="post" action="/admin/orders/status/{{ order.id }}">
+                    <select name="status_value">
+                        {% for s in OrderStatus %}
+                            <option value="{{ s.value }}" {% if s == order.status %}selected{% endif %}>
+                                {{ s.value }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Mettre à jour</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Aucune commande.</p>
+{% endif %}
+{% endblock %}

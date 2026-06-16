@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tableau de bord – RoomBook</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; color: var(--primary);
+      margin-bottom: 1rem; margin-top: 2rem;
+    }
+    .occ-row { display: flex; align-items: center; gap: 1rem; padding: .6rem 0; border-bottom: 1px solid var(--border); }
+    .occ-row:last-child { border-bottom: none; }
+    .occ-name { min-width: 140px; font-weight: 500; font-size: .875rem; }
+    .occ-bar { flex: 1; }
+    .occ-pct { font-size: .8rem; color: var(--text-muted); min-width: 45px; text-align: right; }
+    .filter-bar { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <nav id="nav"></nav>
+  <main class="page">
+    <div class="container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Tableau de bord</h1>
+          <p class="page-subtitle">Vue d'ensemble des réservations</p>
+        </div>
+        <a href="/rooms/manage/new" class="btn btn-primary">+ Ajouter une salle</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="card stat-card"><div class="stat-icon">🏢</div><div class="stat-value" id="statRooms">…</div><div class="stat-label">Salles actives</div></div>
+        <div class="card stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="statUsers">…</div><div class="stat-label">Utilisateurs</div></div>
+        <div class="card stat-card"><div class="stat-icon">📅</div><div class="stat-value" id="statResas">…</div><div class="stat-label">Réservations actives</div></div>
+      </div>
+
+      <!-- Occupancy -->
+      <h2 class="section-title">📊 Taux d'occupation – semaine en cours</h2>
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="card-body" id="occupancyBlock">Chargement…</div>
+      </div>
+
+      <!-- All reservations -->
+      <h2 class="section-title">📋 Toutes les réservations</h2>
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="filter-bar">
+          <label style="font-size:.85rem;font-weight:500">Filtrer :</label>
+          <input type="date" id="filterDate" class="form-control" style="width:auto;padding:.3rem .65rem;font-size:.85rem" placeholder="Date">
+          <select id="filterRoom" class="form-control" style="width:auto;padding:.3rem .65rem;font-size:.85rem">
+            <option value="">Toutes les salles</option>
+          </select>
+          <button class="btn btn-outline btn-sm" id="filterBtn">Filtrer</button>
+          <button class="btn btn-outline btn-sm" id="resetBtn">Réinitialiser</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Utilisateur</th><th>Salle</th><th>Date</th><th>Heure</th><th>Objet</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="allResaBody">
+              <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-muted)">Chargement…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top users -->
+      <h2 class="section-title">🏆 Top utilisateurs</h2>
+      <div class="card" style="margin-bottom:2rem">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rang</th><th>Nom</th><th>Email</th><th>Réservations</th></tr></thead>
+            <tbody id="topUsersBody"><tr><td colspan="4" style="text-align:center;padding:1.5rem">Chargement…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/layout.js"></script>
+  <script>
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    async function loadAll(date, roomId) {
+      let url = '/api/dashboard/all-reservations?';
+      if (date) url += 'date=' + date + '&';
+      if (roomId) url += 'room_id=' + roomId;
+      const res = await fetch(url);
+      const resas = await res.json();
+      const tbody = document.getElementById('allResaBody');
+      if (resas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted)">Aucune réservation trouvée</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = resas.map(r => `<tr>
+        <td>${esc(r.user_name)}<br><small style="color:var(--text-muted)">${esc(r.user_email)}</small></td>
+        <td>${esc(r.room_name)}</td>
+        <td>${new Date(r.date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})}</td>
+        <td>${String(r.hour).padStart(2,'0')}h00 – ${String(r.hour+1).padStart(2,'0')}h00</td>
+        <td>${esc(r.title)}</td>
+        <td>
+          <div style="display:flex;gap:.4rem">
+            <a href="/reservations/${r.id}/edit" class="btn btn-secondary btn-sm">Modifier</a>
+            <form method="POST" action="/reservations/${r.id}/cancel" onsubmit="return confirm('Annuler cette réservation ?')" style="display:inline">
+              <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
+            </form>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+
+    (async () => {
+      const session = await initLayout();
+      if (!session || session.userRole !== 'gestionnaire') {
+        location.href = '/rooms'; return;
+      }
+
+      const statsRes = await fetch('/api/dashboard/stats');
+      const stats = await statsRes.json();
+
+      document.getElementById('statRooms').textContent = stats.totalRooms;
+      document.getElementById('statUsers').textContent = stats.totalUsers;
+      document.getElementById('statResas').textContent = stats.totalReservations;
+
+      // Occupancy
+      const occ = document.getElementById('occupancyBlock');
+      if (stats.occupancy.length === 0) {
+        occ.innerHTML = '<p class="text-muted text-sm">Aucune donnée</p>';
+      } else {
+        occ.innerHTML = stats.occupancy.map(r => `
+          <div class="occ-row">
+            <div class="occ-name">${esc(r.name)}</div>
+            <div class="occ-bar">
+              <div class="progress"><div class="progress-bar" style="width:${Math.min(r.occupancy_pct,100)}%"></div></div>
+            </div>
+            <div class="occ-pct">${r.occupancy_pct}%</div>
+            <div style="font-size:.78rem;color:var(--text-muted)">${r.reserved_slots} créneaux / 45</div>
+          </div>
+        `).join('');
+      }
+
+      // Top users
+      const topBody = document.getElementById('topUsersBody');
+      if (stats.topUsers.length === 0) {
+        topBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted)">Aucune donnée</td></tr>';
+      } else {
+        const medals = ['🥇','🥈','🥉','4.','5.'];
+        topBody.innerHTML = stats.topUsers.map((u, i) => `<tr>
+          <td>${medals[i] || (i+1)+'.'}</td>
+          <td>${esc(u.name)}</td>
+          <td style="color:var(--text-muted)">${esc(u.email)}</td>
+          <td><strong>${u.count}</strong></td>
+        </tr>`).join('');
+      }
+
+      // Populate room filter
+      const roomsRes = await fetch('/api/rooms');
+      const rooms = await roomsRes.json();
+      const roomFilter = document.getElementById('filterRoom');
+      rooms.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = r.name;
+        roomFilter.appendChild(opt);
+      });
+
+      await loadAll('', '');
+
+      document.getElementById('filterBtn').addEventListener('click', () => {
+        loadAll(document.getElementById('filterDate').value, document.getElementById('filterRoom').value);
+      });
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        document.getElementById('filterDate').value = '';
+        document.getElementById('filterRoom').value = '';
+        loadAll('', '');
+      });
+    })();
+  </script>
+</body>
+</html>

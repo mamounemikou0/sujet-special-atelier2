@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Connexion — UserHub{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-decoration">
+    <div class="deco-circle c1"></div>
+    <div class="deco-circle c2"></div>
+    <div class="deco-circle c3"></div>
+    <div class="brand-hero">
+      <span class="brand-icon">⬡</span>
+      <h1>UserHub</h1>
+      <p>Gérez vos utilisateurs<br>avec élégance.</p>
+    </div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Connexion</h2>
+        <p>Bienvenue de retour</p>
+      </div>
+      {% if error %}
+      <div class="alert alert-error">{{ error }}</div>
+      {% endif %}
+      <form method="post" action="/login" class="auth-form">
+        <div class="field-group">
+          <label for="username">Nom d'utilisateur</label>
+          <input type="text" id="username" name="username" placeholder="votre_pseudo" required autofocus />
+        </div>
+        <div class="field-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-primary">Se connecter →</button>
+      </form>
+      <p class="auth-switch">Pas encore de compte ? <a href="/register">S'inscrire</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
