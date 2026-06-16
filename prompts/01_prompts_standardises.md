@@ -53,7 +53,7 @@ Contraintes :
 
 ## 2. Prompts par scénario
 
-### 2.1 Prompt S1 — Gestion d'utilisateurs
+### 2.1 Prompt S1: Gestion d'utilisateurs
 
 ```
 Tu es un assistant de développement. Je suis développeur junior, j'ai besoin d'une 
@@ -87,7 +87,7 @@ Donne-moi tous les fichiers, je vais juste les copier-coller.
 
 ---
 
-### 2.2 Prompt S2 — Plateforme de réservation
+### 2.2 Prompt S2: Plateforme de réservation
 
 ```
 Tu es un assistant de développement. Je suis développeur junior, j'ai besoin d'une 
@@ -122,7 +122,7 @@ Donne-moi tous les fichiers, je vais juste les copier-coller.
 
 ---
 
-### 2.3 Prompt S3 — Boutique en ligne
+### 2.3 Prompt S3: Boutique en ligne
 
 ```
 Tu es un assistant de développement. Je suis développeur junior, j'ai besoin d'une 
@@ -163,7 +163,7 @@ Donne-moi tous les fichiers, je vais juste les copier-coller.
 
 ---
 
-### 2.4 Prompt S4 — Tableau de bord administratif
+### 2.4 Prompt S4: Tableau de bord administratif
 
 ```
 Tu es un assistant de développement. Je suis développeur junior, j'ai besoin d'une 
